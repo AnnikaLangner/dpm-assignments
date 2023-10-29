@@ -1665,7 +1665,7 @@ stimuli using the Affective Misattribution Procedure (AMP) and
 self-reports</h1>
 <h3 class="subtitle">Data processing</h3>
 <h4 class="author">Template: Ian Hussey; content: [Student name]</h4>
-<h4 class="date">24 October, 2023</h4>
+<h4 class="date">29 October, 2023</h4>
 
 </div>
 
@@ -1679,18 +1679,18 @@ self-reports</h1>
 <div id="get-data" class="section level1">
 <h1>Get data</h1>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># demographics</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>data_demographics_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../../../data/AMP study/raw/data_demographics_raw.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>data_demographics_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../data/raw/data_demographics_raw.csv&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># data_demographics_raw_messy &lt;- read_csv(&quot;../../../data/AMP study/raw/data_demographics_raw_messy.csv&quot;, skip = 2) |&gt;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># data_demographics_raw_messy &lt;- read_csv(&quot;../data/raw/data_demographics_raw_messy.csv&quot;, skip = 2) |&gt;</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#   janitor::clean_names()</span></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># self report measure</span></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>data_selfreport_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../../../data/AMP study/raw/data_selfreport_raw.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>data_selfreport_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../data/raw/data_selfreport_raw.csv&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span>
 <span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a></span>
 <span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co"># affect attribution procedure</span></span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>data_amp_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../../../data/AMP study/raw/data_amp_raw.csv&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>data_amp_raw <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../data/raw/data_amp_raw.csv&quot;</span>) <span class="sc">|&gt;</span></span>
 <span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  janitor<span class="sc">::</span><span class="fu">clean_names</span>()</span></code></pre></div>
 </div>
 <div id="demographics" class="section level1">
@@ -1720,31 +1720,60 @@ self-reports</h1>
 <span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">latency_prob =</span> <span class="fu">if_else</span>(latency <span class="sc">&lt;</span> <span class="dv">100</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>)) <span class="sc">|&gt;</span> </span>
 <span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">group_by</span>(subject) <span class="sc">|&gt;</span> </span>
 <span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">proportion_fast_trials_amp =</span> <span class="fu">mean</span>(latency_prob)) <span class="sc">|&gt;</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_amp_performance =</span> <span class="fu">ifelse</span>(proportion_fast_trials_amp <span class="sc">&gt;</span> <span class="fl">0.10</span>, <span class="st">&quot;exclude&quot;</span>, <span class="st">&quot;include&quot;</span>))</span></code></pre></div>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_amp_performance =</span> <span class="fu">ifelse</span>(proportion_fast_trials_amp <span class="sc">&gt;</span> <span class="fl">0.10</span>, <span class="st">&quot;exclude&quot;</span>, <span class="st">&quot;include&quot;</span>))</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#for the test--&gt; 72 trials</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>data_amp_number_criteria_testtrial <span class="ot">&lt;-</span> data_amp_raw <span class="sc">|&gt;</span> </span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="fu">filter</span>(blockcode <span class="sc">!=</span> <span class="st">&quot;practice&quot;</span>, </span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>         trialcode <span class="sc">!=</span> <span class="st">&quot;instructions&quot;</span>)<span class="sc">|&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  <span class="fu">count</span>(subject)<span class="sc">|&gt;</span> </span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_amp_number_testtrial=</span><span class="fu">ifelse</span>(n<span class="sc">%%</span><span class="dv">72</span><span class="sc">==</span><span class="dv">0</span>,<span class="st">&quot;include&quot;</span>,<span class="st">&quot;exclude&quot;</span>))<span class="sc">|&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n)</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#for all--&gt;82 trials</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>data_amp_number_criteria_all <span class="ot">&lt;-</span> data_amp_raw <span class="sc">|&gt;</span> </span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="fu">count</span>(subject)<span class="sc">|&gt;</span> </span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_amp_number_all=</span><span class="fu">ifelse</span>(n<span class="sc">%%</span><span class="dv">82</span><span class="sc">==</span><span class="dv">0</span>,<span class="st">&quot;include&quot;</span>,<span class="st">&quot;exclude&quot;</span>))<span class="sc">|&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n)</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>data_amp_number_criteria_all</span></code></pre></div>
+<pre><code>## # A tibble: 102 × 2
+##     subject exclude_amp_number_all
+##       &lt;dbl&gt; &lt;chr&gt;                 
+##  1  4345805 include               
+##  2 13708908 include               
+##  3 14943693 include               
+##  4 32034696 include               
+##  5 47022865 include               
+##  6 59367911 include               
+##  7 72442795 include               
+##  8 75092407 include               
+##  9 83185292 include               
+## 10 85445170 include               
+## # ℹ 92 more rows</code></pre>
 </div>
 </div>
 <div id="self-reports" class="section level1">
 <h1>Self-reports</h1>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># trial level data</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>data_selfreport_trial_level <span class="ot">&lt;-</span> data_selfreport_raw <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">select</span>(subject, trialcode, response) <span class="sc">|&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">filter</span>(trialcode <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;like&quot;</span>, <span class="st">&quot;prefer&quot;</span>, <span class="st">&quot;positive&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">item =</span> trialcode) <span class="sc">|&gt;</span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">filter</span>(response <span class="sc">!=</span> <span class="st">&quot;Ctrl+&#39;B&#39;&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response =</span> <span class="fu">as.numeric</span>(response))</span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co"># mean scored</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a>data_selfreport_mean_score <span class="ot">&lt;-</span> data_selfreport_trial_level <span class="sc">|&gt;</span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>  <span class="fu">group_by</span>(subject) <span class="sc">|&gt;</span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_evaluation =</span> <span class="fu">mean</span>(response, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co"># combined</span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>data_selfreport_scored <span class="ot">&lt;-</span> </span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a>  <span class="fu">full_join</span>(data_selfreport_trial_level <span class="sc">|&gt;</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a>              <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">&quot;item&quot;</span>,</span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>                          <span class="at">values_from =</span> <span class="st">&quot;response&quot;</span>),</span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>            data_selfreport_mean_score,</span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># trial level data</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>data_selfreport_trial_level <span class="ot">&lt;-</span> data_selfreport_raw <span class="sc">|&gt;</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">select</span>(subject, trialcode, response) <span class="sc">|&gt;</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">filter</span>(trialcode <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">&quot;like&quot;</span>, <span class="st">&quot;prefer&quot;</span>, <span class="st">&quot;positive&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">item =</span> trialcode) <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">filter</span>(response <span class="sc">!=</span> <span class="st">&quot;Ctrl+&#39;B&#39;&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">response =</span> <span class="fu">as.numeric</span>(response))</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co"># mean scored</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>data_selfreport_mean_score <span class="ot">&lt;-</span> data_selfreport_trial_level <span class="sc">|&gt;</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  <span class="fu">group_by</span>(subject) <span class="sc">|&gt;</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">mean_evaluation =</span> <span class="fu">mean</span>(response, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co"># combined</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>data_selfreport_scored <span class="ot">&lt;-</span> </span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>  <span class="fu">full_join</span>(data_selfreport_trial_level <span class="sc">|&gt;</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>              <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> <span class="st">&quot;item&quot;</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>                          <span class="at">values_from =</span> <span class="st">&quot;response&quot;</span>),</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>            data_selfreport_mean_score,</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)</span></code></pre></div>
 </div>
 <div id="affect-misattribution-procedure" class="section level1">
 <h1>Affect Misattribution Procedure</h1>
@@ -1753,49 +1782,94 @@ overall bias score</p>
 </div>
 <div id="combine" class="section level1">
 <h1>Combine</h1>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># combine all dfs created in the previous chunks</span></span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>data_processed_temp <span class="ot">&lt;-</span> dat_age_gender <span class="sc">|&gt;</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">full_join</span>(data_selfreport_scored, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">full_join</span>(data_amp_performance_criteria, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co"># flag all subjects with more than one row in the wide-format data. these should be excluded in the analysis.</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co"># a more elaborate approach would be to track down the individual dupicate cases and determine which of the mulitiple cases should be retained. </span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>data_processed_duplicates <span class="ot">&lt;-</span> data_processed_temp <span class="sc">|&gt;</span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="fu">count</span>(subject) <span class="sc">|&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_duplicate_data =</span> <span class="fu">if_else</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="st">&quot;exclude&quot;</span>, <span class="st">&quot;include&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n)</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co"># join in the duplicates df</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>data_processed_before_exclusions <span class="ot">&lt;-</span> data_processed_temp <span class="sc">|&gt;</span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  <span class="fu">full_join</span>(data_processed_duplicates, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># combine all dfs created in the previous chunks</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>data_processed_temp <span class="ot">&lt;-</span> dat_age_gender <span class="sc">|&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">full_join</span>(data_selfreport_scored, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">full_join</span>(data_amp_performance_criteria, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)<span class="sc">|&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  <span class="fu">full_join</span>(data_amp_number_criteria_testtrial, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)<span class="sc">|&gt;</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  <span class="fu">full_join</span>(data_amp_number_criteria_all,<span class="at">by=</span><span class="st">&quot;subject&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co"># flag all subjects with more than one row in the wide-format data. these should be excluded in the analysis.</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co"># a more elaborate approach would be to track down the individual duplicate cases and determine which of the multiple cases should be retained. </span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>data_processed_duplicates <span class="ot">&lt;-</span> data_processed_temp <span class="sc">|&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>  <span class="fu">count</span>(subject) <span class="sc">|&gt;</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_duplicate_data =</span> <span class="fu">if_else</span>(n <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="st">&quot;exclude&quot;</span>, <span class="st">&quot;include&quot;</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>n)</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co"># join in the duplicates df</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>data_processed_before_exclusions <span class="ot">&lt;-</span> data_processed_temp <span class="sc">|&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>  <span class="fu">full_join</span>(data_processed_duplicates, <span class="at">by =</span> <span class="st">&quot;subject&quot;</span>)</span></code></pre></div>
+<p>#Master exclude variable Self-Report</p>
+<ul>
+<li><p>If you do it beforehand, additional lines containing ‘na’ can
+still be added.(-&gt;Combine)</p></li>
+<li><p>Shouldn’t all master exclusions ideally be done at the
+end?</p></li>
+<li><p>in exclude_amp_performance –&gt; there is NA</p></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>data_processed_before_exclusions <span class="ot">&lt;-</span> data_processed_before_exclusions<span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_selfreport =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(like) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                                        <span class="fu">is.na</span>(prefer) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>                                        <span class="fu">is.na</span>(positive) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>                                        <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>))</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>data_processed_before_exclusions <span class="ot">&lt;-</span> data_processed_before_exclusions<span class="sc">|&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_amp_number_testtrial =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(exclude_amp_number_testtrial) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>                                        <span class="cn">TRUE</span> <span class="sc">~</span> exclude_amp_number_testtrial ))</span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a>data_processed_before_exclusions <span class="ot">&lt;-</span> data_processed_before_exclusions<span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_amp_performance =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(exclude_amp_performance) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a>                                        <span class="cn">TRUE</span> <span class="sc">~</span> exclude_amp_performance ))</span></code></pre></div>
 </div>
 <div id="define-master-exclusions" class="section level1">
 <h1>Define master exclusions</h1>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># create a master exclude_participant variable</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>data_processed <span class="ot">&lt;-</span> data_processed_before_exclusions <span class="sc">|&gt;</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant =</span> <span class="fu">case_when</span>(<span class="fu">tolower</span>(age) <span class="sc">==</span> <span class="st">&quot;test&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>                                         <span class="fu">tolower</span>(gender) <span class="sc">==</span> <span class="st">&quot;test&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>                                         <span class="fu">is.na</span>(mean_evaluation) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>                                         <span class="co"># in this case we will exclude participants with missing demographics data or outcomes measures data. </span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>                                         <span class="co"># Note that &quot;list-wise exclusions&quot; like this aren&#39;t always justified, as missingness often isn&#39;t at random. </span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>                                         <span class="co"># How to treat missing data is a  whole area of work in itself, which we wont cover here.</span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>                                         <span class="fu">is.na</span>(age) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>                                         <span class="fu">is.na</span>(gender) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>                                         exclude_amp_performance <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>                                         exclude_duplicate_data <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>                                         <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># create a master exclude_participant variable</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>data_processed <span class="ot">&lt;-</span> data_processed_before_exclusions <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant =</span> <span class="fu">case_when</span>(<span class="fu">tolower</span>(age) <span class="sc">==</span> <span class="st">&quot;test&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>                                         <span class="fu">tolower</span>(gender) <span class="sc">==</span> <span class="st">&quot;test&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>                                         <span class="fu">is.na</span>(mean_evaluation) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>                                         <span class="co"># in this case we will exclude participants with missing demographics data or outcomes measures data. </span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>                                         <span class="co"># Note that &quot;list-wise exclusions&quot; like this aren&#39;t always justified, as missingness often isn&#39;t at random. </span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>                                         <span class="co"># How to treat missing data is a  whole area of work in itself, which we wont cover here.</span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>                                         <span class="fu">is.na</span>(age) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>                                         <span class="fu">is.na</span>(gender) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>                                         exclude_amp_performance <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>                                         exclude_duplicate_data <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>                                         exclude_selfreport<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a>                                         exclude_amp_number_testtrial<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>                                         exclude_amp_number_all<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>                                         <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>))</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>data_processed</span></code></pre></div>
+<pre><code>## # A tibble: 103 × 16
+##      subject date       time     age                gender  like positive prefer
+##        &lt;dbl&gt; &lt;date&gt;     &lt;time&gt;   &lt;chr&gt;              &lt;chr&gt;  &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;
+##  1 548957868 2022-06-23 10:46:30 23                 other…    NA       NA     NA
+##  2 504546409 2022-06-23 11:54:55 other/missing/err… other…    NA       NA     NA
+##  3 994692692 2022-06-23 12:23:32 21                 female     2        1      1
+##  4 246532124 2022-06-23 12:27:58 23                 male       4       NA     NA
+##  5 246532124 2022-06-23 12:32:30 23                 male       4       NA     NA
+##  6 902223169 2022-06-23 12:33:36 19                 female     3        3      2
+##  7 469672453 2022-06-23 12:35:04 27                 male       2        1      1
+##  8 637089700 2022-06-23 13:35:40 43                 male       2        2      2
+##  9   4345805 2022-06-23 12:37:12 54                 male       2        4      3
+## 10 786441188 2022-06-23 13:37:07 27                 female     1        1      3
+## # ℹ 93 more rows
+## # ℹ 8 more variables: mean_evaluation &lt;dbl&gt;, proportion_fast_trials_amp &lt;dbl&gt;,
+## #   exclude_amp_performance &lt;chr&gt;, exclude_amp_number_testtrial &lt;chr&gt;,
+## #   exclude_amp_number_all &lt;chr&gt;, exclude_duplicate_data &lt;chr&gt;,
+## #   exclude_selfreport &lt;chr&gt;, exclude_participant &lt;chr&gt;</code></pre>
 </div>
 <div id="write-to-disk" class="section level1">
 <h1>Write to disk</h1>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># in case this dir doesn&#39;t exist, create it</span></span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;../../../data/AMP study/processed/&quot;</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co"># save data to disk in that dir</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">write_csv</span>(data_processed, <span class="st">&quot;../../../data/AMP study/processed/data_processed.csv&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># in case this dir doesn&#39;t exist, create it</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#dir.create(&quot;../data/processed/&quot;)</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="co"># save data to disk in that dir</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">write_csv</span>(data_processed, <span class="st">&quot;../data/processed/data_processed.csv&quot;</span>)</span></code></pre></div>
 </div>
 <div id="session-info" class="section level1">
 <h1>Session info</h1>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.3.1 (2023-06-16)
 ## Platform: aarch64-apple-darwin20 (64-bit)
 ## Running under: macOS Sonoma 14.0
@@ -1822,7 +1896,7 @@ overall bias score</p>
 ##  [1] bit_4.0.5         gtable_0.3.4      jsonlite_1.8.7    crayon_1.5.2     
 ##  [5] compiler_4.3.1    tidyselect_1.2.0  parallel_4.3.1    snakecase_0.11.1 
 ##  [9] jquerylib_0.1.4   scales_1.2.1      yaml_2.3.7        fastmap_1.1.1    
-## [13] R6_2.5.1          generics_0.1.3    knitr_1.43        munsell_0.5.0    
+## [13] R6_2.5.1          generics_0.1.3    knitr_1.44        munsell_0.5.0    
 ## [17] bslib_0.5.1       pillar_1.9.0      tzdb_0.4.0        rlang_1.1.1      
 ## [21] utf8_1.2.3        stringi_1.7.12    cachem_1.0.8      xfun_0.40        
 ## [25] sass_0.4.7        bit64_4.0.5       timechange_0.2.0  cli_3.6.1        
