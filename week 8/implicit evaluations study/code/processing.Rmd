@@ -135,8 +135,104 @@ data_selfreport_scored <-
 TODO extract evaluations on the AMP test blocks and convert to an overall bias score
 
 ```{r}
+data_amp_score_before_check<-data_amp_raw|>
+  filter(blockcode != "practice",
+         trialcode != "instructions")|>
+  select(subject, evaluation=correct, trialcode)|>
+  mutate(primecongruent= case_when(trialcode == "prime_negative"&evaluation==0~ "congruent",
+                                   trialcode == "prime_positive"&evaluation==1~ "congruent",
+                                   TRUE~"incongruent"))
 
+#start CHECK1: check in a table if the two values (from the column "evaluation" and "trialcode") have been converted correctly into congruent or incongruent) 
+#important--> frequency should be 0 for the cases:
+###.  1,	prime_negative,	congrent	
+###.  0,	prime_positive,	congrent
+###.  1,	prime_negative,	incongruent	
+###.  0,	prime_positive,	incongruent
+check1<- data_amp_score_before_check|>
+  select(-subject)
+table_check1<-table(check1)
+table_check1
 
+#Another way of visualization (Check1)
+anotherway_check1 <- as.data.frame(table_check1)
+colnames(anotherway_check1) <- c("evaluation", "trialcode","Primecongruent" ,"Frequency")
+anotherway_check1
+
+#Another way of visualization (Check1)
+check1<-data_amp_score_before_check|>
+  mutate(check=case_when(evaluation=="1" & trialcode=="prime_negative" & primecongruent=="congruent"~ "Warning",
+                         evaluation=="0" & trialcode=="prime_positive" & primecongruent=="congruent"~ "Warning",
+                         evaluation=="0" & trialcode=="prime_negative" & primecongruent=="incongruent"~ "Warning",
+                         evaluation=="1" & trialcode=="prime_positive" & primecongruent=="incongruent"~ "Warning",
+                         TRUE~ "Correct"))
+check1|>count(check)
+#end CHECK1
+
+#start CHECK2: Is the sum of congruent (2_2) and incongruent (check2_3) equal to the total number of trails (check2_1)?
+check2_1<-data_amp_raw|>
+  filter(blockcode != "practice",
+         trialcode != "instructions")|>
+  count(subject)|>
+  rename(total_number_trails=n)
+
+check2_2<-data_amp_score_before_check|>
+  filter(primecongruent=="congruent")|>
+  group_by(subject)|>
+  count(primecongruent)|>
+  summarise(number_congruent=sum(n))
+
+check2_3<-data_amp_score_before_check|>
+  filter(primecongruent=="incongruent")|>
+  group_by(subject)|>
+  count(primecongruent)|>
+  summarise(number_incongruent=sum(n))
+
+check2<-check2_1|>
+  full_join(check2_2, by ="subject")|>
+  full_join(check2_3, by ="subject")|>
+  mutate(check=case_when(number_congruent+number_incongruent== total_number_trails~ "Correct",
+                         number_congruent== total_number_trails& is.na(number_incongruent) ~ "Correct",
+                         is.na(number_congruent) & number_incongruent== total_number_trails ~ "Correct",
+                         TRUE ~ "Warning"))
+check2|>count(check)
+#end CHECK2
+
+data_amp_score<-data_amp_score_before_check|> group_by(subject) |>
+  summarise(evaluation_score = sum(primecongruent=="congruent")/(sum(primecongruent=="congruent")+sum(primecongruent=="incongruent")))
+
+#start CHECK3 and CHECK4: are the values between 0 (check3) and 1 (check4):
+check2and3 <- data_amp_score|>
+  mutate(check=if_else(evaluation_score<1 & evaluation_score>=0,"correct", "Warning"))
+check2and3|>count(check)
+#end CHECK3 and CHECK4
+
+#Start CHECK5: Select 1 random subject and check the value manually and step by step
+#select a random subject
+random_row <- data_amp_score_before_check|> sample_n(1)
+random_subject<- random_row$subject
+
+#check5_1: here, you have an overview about the values from your random subject
+check5_1<- data_amp_score_before_check|>
+  filter(subject==random_subject)|>
+  arrange(primecongruent)
+check5_1 
+
+# check5_2: verify if the column "Primecongruent" has been filled correctly. 
+check5_2<-check5_1|>
+  select(-subject)
+table_check5_2<-table(check5_2)
+table_check5_2
+
+#Check5_3: Verify if the values have been calculated correctly
+check5_3<-check5_1 |>count(primecongruent)
+check5_3$Proportion <- as.numeric(check5_3$n) /sum(check5_3$n)
+proportion_5_3  <- subset(check5_3$n, check5_3$primecongruent == "congruent")/sum(check5_3$n)
+proportion_to_check<-subset(data_amp_score$evaluation_score,data_amp_score$subject== random_subject )
+message <- ifelse(proportion_5_3== proportion_to_check, "Perfect, the variables match.", "Warning, the variables do not match.")
+cat(message)
+print(c(proportion_5_3,proportion_to_check))
+#End CHECK5
 ```
 
 # Combine
@@ -147,7 +243,8 @@ TODO extract evaluations on the AMP test blocks and convert to an overall bias s
 data_processed_temp <- dat_age_gender |>
   full_join(data_selfreport_scored, by = "subject") |> 
   full_join(data_amp_performance_criteria, by = "subject") |>
-  full_join(data_amp_completeness, by = "subject")
+  full_join(data_amp_completeness, by = "subject")|>
+  full_join(data_amp_score, by = "subject")
 
 # flag all subjects with more than one row in the wide-format data. these should be excluded in the analysis.
 # a more elaborate approach would be to track down the individual dupicate cases and determine which of the mulitiple cases should be retained. 
@@ -159,6 +256,17 @@ data_processed_duplicates <- data_processed_temp |>
 # join in the duplicates df
 data_processed_before_exclusions <- data_processed_temp |>
   full_join(data_processed_duplicates, by = "subject")
+
+```
+
+#Master exclude variable Self-Report
+
+```{r}
+data_processed_before_exclusions <- data_processed_before_exclusions|>
+  mutate(exclude_selfreport = case_when(is.na(like) ~ "exclude",
+                                        is.na(prefer) ~ "exclude",
+                                        is.na(positive) ~ "exclude",
+                                        TRUE ~ "include"))
 
 ```
 
@@ -178,7 +286,8 @@ data_processed <- data_processed_before_exclusions |>
                                          is.na(gender) ~ "exclude",
                                          exclude_amp_performance == "exclude" ~ "exclude",
                                          exclude_duplicate_data == "exclude" ~ "exclude",
-                                         exclude_amp_completeness == "exclude" ~ "exclude", 
+                                         exclude_amp_completeness == "exclude" ~ "exclude",
+                                         exclude_selfreport== "exclude" ~ "exclude",
                                          TRUE ~ "include"))
 
 ```
