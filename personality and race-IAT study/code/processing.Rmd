@@ -402,7 +402,14 @@ cat("The distribution for IAT performance:\n exclude->", result_iat_perf["exclud
 
 ```{r}
 
-data_processed_temp <- data_demographics 
+data_processed_temp <- data_demographics |>
+  full_join(data_bfi_meanscore, by = "unique_id") |> 
+  full_join(data_bfi_rev_without_onrc, by = "unique_id")|>
+  full_join(data_bfi_logical_scores, by = "unique_id")|>
+  full_join(data_bfi_completeness, by = "unique_id")|>
+  full_join(data_iat_D, by = "unique_id")|>
+  full_join(data_iat_performance, by = "unique_id")|>
+  full_join(data_iat_completeness, by = "unique_id")
 
 ```
 
@@ -412,7 +419,24 @@ data_processed_temp <- data_demographics
 
 ```{r}
 
-data_processed<-data_processed_temp
+data_processed<-data_processed_temp |>
+  mutate(exclude_participant_without_iat=case_when(is.na(iat_D)~"exclude",
+                                                  TRUE~"include"),
+         exclude_participant_without_bfi = case_when(is.na(bfi_e_mean) & is.na(bfi_c_mean) & is.na(bfi_n_mean) & is.na(bfi_a_mean) & is.na(bfi_o_mean) ~ "exclude",TRUE ~ "include"),
+        exclude_unique_id_is.na=case_when(is.na(unique_id)~"exclude",
+                                                  TRUE~"include") )|>
+mutate(exclude_participant = case_when(exclude_bfi_logical_scores == "exclude" ~ "exclude",
+                                         exclude_bfi_completeness == "exclude" ~ "exclude",
+                                         exclude_iat_performance == "exclude" ~ "exclude", 
+                                         exclude_iat_completeness == "exclude" ~ "exclude", 
+                                         exclude_participant_without_iat == "exclude" ~ "exclude", 
+                                         exclude_participant_without_bfi == "exclude" ~ "exclude", 
+                                       exclude_unique_id_is.na== "exclude" ~ "exclude",
+                                         TRUE ~ "include"))
+
+# Print the results
+result_master_exclusion <- table(data_processed$exclude_participant)
+cat("The distribution for master exclusion:\n exclude->", result_master_exclusion["exclude"], "and include->", result_master_exclusion["include"])
 
 ```
 
@@ -421,6 +445,11 @@ data_processed<-data_processed_temp
 - Save the processed data to the data/processed/ folder as "data_processed.csv". 
 
 ```{r}
+# in case this dir doesn't exist, create it
+dir.create("../data/processed/")
+
+# save data to disk in that dir
+write_csv(data_processed, "../data/processed/data_processed.csv")
 
 ```
 
