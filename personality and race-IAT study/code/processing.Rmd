@@ -54,9 +54,16 @@ data_iat_raw <- read_csv("../data/raw/data_raw_iat.csv") |>
 # Demographics
 
 - Extract age and gender from the raw demographics data.
+
 ```{r}
 
-
+data_demographics <- data_demographics_raw |>
+  group_by(unique_id, variable) |>
+  mutate(row_id = row_number()) |>
+  pivot_wider(names_from = variable, values_from = response) |>
+  mutate(across(c(age), as.numeric))|>
+  rename(gender=sex)|>
+  select(-row_id)
 
 ```
 
@@ -148,6 +155,8 @@ data_iat_raw <- read_csv("../data/raw/data_raw_iat.csv") |>
 
 ```{r}
 
+data_processed_temp <- data_demographics 
+
 ```
 
 # Define master exclusions
@@ -156,6 +165,7 @@ data_iat_raw <- read_csv("../data/raw/data_raw_iat.csv") |>
 
 ```{r}
 
+data_processed<-data_processed_temp
 
 ```
 
@@ -169,19 +179,465 @@ data_iat_raw <- read_csv("../data/raw/data_raw_iat.csv") |>
 
 # Codebooks 
 
+I have created two codebooks, one for the Excel sheet and one for the R file. Both codebooks are populated in the R code, ensuring that the codebook is always up-to-date. If new variables are introduced, they are added directly. The codebook is then overwritten each time, and one must be careful not to inadvertently overwrite important information in the Excel sheet which have been manually added.
+
 ## Codebook for excel sheet data_processed.csv
 
 - Create a codebook for the processed data file that explains what each variable represents.
 
 ```{r}
+#Create and combine variables for the Codebook
+variable_codebook_E_dp<- names(data_processed)
+
+variables_to_remove_E <- c("bfi_e1","bfi_e3","bfi_e4","bfi_e6","bfi_e8","bfi_e2_rev","bfi_e7_rev","bfi_e5_rev",
+                           "bfi_c1","bfi_c3","bfi_c6","bfi_c7","bfi_c8","bfi_c","bfi_c2_rev","bfi_c4_rev","bfi_c5_rev","bfi_c9_rev",
+                           "bfi_n1","bfi_n3","bfi_n4","bfi_n6","bfi_n8","bfi_n2_rev","bfi_n5_rev","bfi_n7_rev",
+                           "bfi_a2","bfi_a4","bfi_a5","bfi_a7","bfi_a9","bfi_a1_rev","bfi_a3_rev","bfi_a6_rev","bfi_a8_rev",
+                           "bfi_o1","bfi_o10","bfi_o2","bfi_o3","bfi_o4","bfi_o5","bfi_o6","bfi_o8","bfi_o7_rev","bfi_o9_rev")
+variable_to_add_E<-c("bfi_e1,...,bfi_e9","bfi_c1,...,bfi_c9","bfi_n1,...,bfi_n9","bfi_a1,...,bfi_a9","bfi_o1,...,bfi_o9",
+                     "bfi_e1_rev,...,bfi_e9_rev","bfi_c1_rev,...,bfi_c9_rev","bfi_n1_rev,...,bfi_n9_rev","bfi_a1_rev,...,bfi_a9_rev","bfi_o1_rev,...,bfi_o9_rev")
+
+variable_codebook_E_dp_vtr <- variable_codebook_E_dp[!variable_codebook_E_dp %in% variables_to_remove_E] # Remove variables_to_remove_E from variable_codebook_E_dp
+sorted_variable_codebook_E_dp_vtr <- variable_codebook_E_dp_vtr[order(variable_codebook_E_dp_vtr!= "Unique ID", variable_codebook_E_dp_vtr, na.last = FALSE)] #sort the variabkle 
+variable_codebook_E <- c(sorted_variable_codebook_E_dp_vtr, variable_to_add_E) #Add variable_to_add_E to sorted_variable_codebook_E_dp_vtr
+
+#Create codebook
+codebook_E <- data.frame(
+  Variable=variable_codebook_E
+)|>
+  mutate(explanation = case_when(Variable == "bfi_e_mean" ~ "",
+                                 Variable == "bfi_c_mean" ~ "",
+                                 Variable == "bfi_n_mean" ~ "",
+                                 Variable == "bfi_a_mean" ~ "",
+                                 Variable == "bfi_o_mean" ~ "",
+                                 Variable == "exclude_bfi_completeness" ~ "",
+                                 Variable == "exclude_bfi_logical_scores" ~ "",
+                                 Variable == "exclude_iat_completeness" ~ "",
+                                 Variable == "exclude_iat_performance" ~ "",
+                                 Variable == "exclude_participant" ~ "",
+                                 Variable == "iat_D" ~ "",
+                                 Variable == "iat_SD" ~ "",
+                                 Variable == "iat_mean1" ~ "",
+                                 Variable == "iat_mean2" ~ "",
+                                 Variable == "unique_id" ~   "Participant identification number",
+                                 Variable == "age" ~   "Participant age",
+                                 Variable == "gender" ~   "Participant gender",
+                                 Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "Different reversed items form the subscale extroversion",
+                                 Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "Different reversed items form the subscale conscientiousness",
+                                 Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "Different reversed items form the subscale neuroticism",
+                                 Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "Different reversed items form the subscale agreeableness",
+                                 Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "Different reversed items form the subscale openness",
+                                 Variable == "bfi_e1,...,bfi_e9" ~   "Different  items form the subscale extroversion",
+                                 Variable == "bfi_c1,...,bfi_c9" ~   "Different items form the subscale conscientiousness",
+                                 Variable == "bfi_n1,...,bfi_n9" ~   "Different items form the subscale neuroticism",
+                                 Variable == "bfi_a1,...,bfi_a9" ~   "Different items form the subscale agreeableness",
+                                 Variable == "bfi_o1,...,bfi_o9" ~   "Different items form the subscale openness",
+                                 TRUE ~ NA))|>
+  
+  mutate(items_used_and_calculation = case_when(Variable == "bfi_e_mean" ~ "",
+                                                Variable == "bfi_c_mean" ~ "",
+                                                Variable == "bfi_n_mean" ~ "",
+                                                Variable == "bfi_a_mean" ~ "",
+                                                Variable == "bfi_o_mean" ~ "",
+                                                Variable == "exclude_bfi_completeness" ~ "",
+                                                Variable == "exclude_bfi_logical_scores" ~ "",
+                                                Variable == "exclude_iat_completeness" ~ "",
+                                                Variable == "exclude_iat_performance" ~ "",
+                                                Variable == "exclude_participant" ~ "",
+                                                Variable == "iat_D" ~ "",
+                                                Variable == "iat_SD" ~ "",
+                                                Variable == "iat_mean1" ~ "",
+                                                Variable == "iat_mean2" ~ "",
+                                                Variable == "unique_id" ~   "",
+                                                Variable == "age" ~   "",
+                                                Variable == "gender" ~   "",
+                                                Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
+                                                Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
+                                                Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
+                                                Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
+                                                Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
+                                                Variable == "bfi_e1,...,bfi_e9" ~   "",
+                                                Variable == "bfi_c1,...,bfi_c9" ~   "",
+                                                Variable == "bfi_n1,...,bfi_n9" ~   "",
+                                                Variable == "bfi_a1,...,bfi_a9" ~   "",
+                                                Variable == "bfi_o1,...,bfi_o9" ~   "",
+                                                TRUE ~ NA))|>
+  mutate(Range=case_when(Variable == "bfi_e_mean" ~ "",
+                         Variable == "bfi_c_mean" ~ "",
+                         Variable == "bfi_n_mean" ~ "",
+                         Variable == "bfi_a_mean" ~ "",
+                         Variable == "bfi_o_mean" ~ "",
+                         Variable == "exclude_bfi_completeness" ~ "",
+                         Variable == "exclude_bfi_logical_scores" ~ "",
+                         Variable == "exclude_iat_completeness" ~ "",
+                         Variable == "exclude_iat_performance" ~ "",
+                         Variable == "exclude_participant" ~ "",
+                         Variable == "iat_D" ~ "",
+                         Variable == "iat_SD" ~ "",
+                         Variable == "iat_mean1" ~ "",
+                         Variable == "iat_mean2" ~ "",
+                         Variable == "unique_id" ~   "",
+                         Variable == "age" ~   "",
+                         Variable == "gender" ~   "",
+                         Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
+                         Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
+                         Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
+                         Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
+                         Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
+                         Variable == "bfi_e1,...,bfi_e9" ~   "",
+                         Variable == "bfi_c1,...,bfi_c9" ~   "",
+                         Variable == "bfi_n1,...,bfi_n9" ~   "",
+                         Variable == "bfi_a1,...,bfi_a9" ~   "",
+                         Variable == "bfi_o1,...,bfi_o9" ~   "",
+                         TRUE ~ NA))|>
+  
+  mutate(Study = case_when(Variable == "bfi_e_mean" ~ "",
+                           Variable == "bfi_c_mean" ~ "",
+                           Variable == "bfi_n_mean" ~ "",
+                           Variable == "bfi_a_mean" ~ "",
+                           Variable == "bfi_o_mean" ~ "",
+                           Variable == "exclude_bfi_completeness" ~ "",
+                           Variable == "exclude_bfi_logical_scores" ~ "",
+                           Variable == "exclude_iat_completeness" ~ "",
+                           Variable == "exclude_iat_performance" ~ "",
+                           Variable == "exclude_participant" ~ "",
+                           Variable == "iat_D" ~ "",
+                           Variable == "iat_SD" ~ "",
+                           Variable == "iat_mean1" ~ "",
+                           Variable == "iat_mean2" ~ "",
+                           Variable == "unique_id" ~   "",
+                           Variable == "age" ~   "",
+                           Variable == "gender" ~   "",
+                           Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
+                           Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
+                           Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
+                           Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
+                           Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
+                           Variable == "bfi_e1,...,bfi_e9" ~   "",
+                           Variable == "bfi_c1,...,bfi_c9" ~   "",
+                           Variable == "bfi_n1,...,bfi_n9" ~   "",
+                           Variable == "bfi_a1,...,bfi_a9" ~   "",
+                           Variable == "bfi_o1,...,bfi_o9" ~   "",
+                           TRUE ~ NA))
 
 
+#write.xlsx(codebook_E, file = "../data/processed/data_processed_codebook.xlsx")
+
+# Create an Excel workbook
+wb_Codebook_E <- createWorkbook()
+
+# Add a worksheet named "Codebook" to the workbook
+addWorksheet(wb_Codebook_E, "Codebook")
+
+# Write the data frame 'codebook_E' to the "Codebook" worksheet
+writeData(wb_Codebook_E, "Codebook", codebook_E)
+
+# Adjust the column widths of the "Codebook" worksheet to fit the content
+setColWidths(wb_Codebook_E, "Codebook", cols = 1:ncol(codebook_E), widths = "auto")
+
+# Save to disk
+saveWorkbook(wb_Codebook_E, file = "../data/processed/data_processed_codebook.xlsx", overwrite = TRUE)
 
 ```
 
 ## Codebook for this R file processing.Rmd
 
 ```{r}
+
+variable_to_add_R<-c("codebook_R") # Variable contains "codebook_R"
+variable_codebook_R_ls<-ls() # Variable from this R file
+
+# Combine the variables: variable_codebook_R_ls, variable_to_add_R, variable_codebook_E (contains all variable from the codebook for the excel sheet)
+variable_codebook_R <- c(variable_codebook_R_ls, variable_to_add_R, variable_codebook_E) 
+
+codebook_R <- data.frame(
+  Variable=variable_codebook_R )|>
+  mutate(explanation = case_when(Variable == "data_bfi_raw" ~ "Data Frame: containing raw data from big five inventory table",
+                                 Variable == "data_demographics_raw" ~ "Data Frame containing raw demographic data",
+                                 Variable == "data_iat_raw" ~ "Data Frame: containing raw data from IAT",
+                                 Variable == "data_demographics" ~ "Data Frame containing raw demographic data",
+                                 Variable == "data_iat" ~ "",
+                                 Variable == "data_bfi" ~ "",
+                                 Variable == "data_bfi_completeness" ~ "",
+                                 Variable == "ddata_iat_completeness" ~ "",
+                                 Variable == "data_bfi_logical_scores" ~ "",
+                                 Variable == "data_bfi_meanscore" ~ "",
+                                 Variable == "data_bfi_rev" ~ "",
+                                 Variable == "data_bfi_rev_without_onrc" ~ "",
+                                 Variable == "data_bfi_rev_without_onrc_ex_compl" ~ "",
+                                 Variable == "data_demographics_raw" ~ "",
+                                 Variable == "data_iat_D" ~ "",
+                                 Variable == "data_iat_mean1" ~ "",
+                                 Variable == "data_iat_mean2" ~ "",
+                                 Variable == "data_iat_performance" ~ "",
+                                 Variable == "data_iat_SD" ~ "",
+                                 Variable == "data_processed" ~ "Data Frame: All information for analysis",
+                                 Variable == "data_processed_temp" ~ "All information for analysis without the master exclusion column and the three demographic exclusions",
+                                 Variable == "maxscore_bfi_e" ~ "",
+                                 Variable == "maxscore_bfi_c" ~ "",
+                                 Variable == "maxscore_bfi_n" ~ "",
+                                 Variable == "maxscore_bfi_a" ~ "",
+                                 Variable == "maxscore_bfi_o" ~ "",
+                                 Variable == "minscore_bfi_e" ~ "",
+                                 Variable == "minscore_bfi_c" ~ "",
+                                 Variable == "minscore_bfi_n" ~ "",
+                                 Variable == "minscore_bfi_a" ~ "",
+                                 Variable == "minscore_bfi_o" ~ "",
+                                 Variable == "cor_bfi_e" ~ "",
+                                 Variable == "cor_bfi_c" ~ "",
+                                 Variable == "cor_bfi_n" ~ "",
+                                 Variable == "cor_bfi_a" ~ "",
+                                 Variable == "cor_bfi_o" ~ "",
+                                 Variable == "negative_values_e_exist" ~ "",
+                                 Variable == "negative_values_c_exist" ~ "",
+                                 Variable == "negative_values_n_exist" ~ "",
+                                 Variable == "negative_values_a_exist" ~ "",
+                                 Variable == "negative_values_o_exist" ~ "",
+                                 Variable == "result_range_e" ~ "",
+                                 Variable == "result_range_c" ~ "",
+                                 Variable == "result_range_n" ~ "",
+                                 Variable == "result_range_a" ~ "",
+                                 Variable == "result_range_o" ~ "",
+                                 Variable == "result_bfi_compl" ~ "",
+                                 Variable == "result_bfi_logical_scores" ~ "",
+                                 Variable == "result_iat_compl" ~ "",
+                                 Variable == "result_iat_perf" ~ "",
+                                 Variable == "result_master_exclusion" ~ "",
+                                 Variable == "codebook_E" ~ "Codebook for the Excel sheet",
+                                 Variable == "codebook_R" ~ "Codebook for the R sheet",
+                                 Variable == "sorted_variable_codebook_E_dp_vtr" ~ "",
+                                 Variable == "variable_codebook_E" ~ "All variables for the Codebbok_E",
+                                 Variable == "variable_codebook_R" ~ "All variables for the Codebbok_R",
+                                 Variable == "variable_codebook_E_dp" ~ "Variable from data_processed",
+                                 Variable == "variable_codebook_E_dp_vtr" ~ "Variable_codebook_E_dp without variables_to_remove_E",
+                                 Variable == "variable_to_add_E" ~ "",
+                                 Variable == "variable_to_add_R" ~ "Variable contains codebook_R",
+                                 Variable == "variables_to_remove_R" ~ "",
+                                 Variable == "variable_codebook_R_ls" ~ "Variable from this R file",
+                                 Variable == "bfi_e_mean" ~ "",
+                                 Variable == "bfi_c_mean" ~ "",
+                                 Variable == "bfi_n_mean" ~ "",
+                                 Variable == "bfi_a_mean" ~ "",
+                                 Variable == "bfi_o_mean" ~ "",
+                                 Variable == "exclude_bfi_completeness" ~ "",
+                                 Variable == "exclude_bfi_logical_scores" ~ "",
+                                 Variable == "exclude_iat_completeness" ~ "",
+                                 Variable == "exclude_iat_performance" ~ "",
+                                 Variable == "exclude_participant" ~ "",
+                                 Variable == "iat_D" ~ "",
+                                 Variable == "iat_SD" ~ "",
+                                 Variable == "iat_mean1" ~ "",
+                                 Variable == "iat_mean2" ~ "",
+                                 Variable == "unique_id" ~   "Participant identification number",
+                                 Variable == "age" ~   "Participant age",
+                                 Variable == "gender" ~   "Participant gender",
+                                 Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "Different reversed items form the subscale extroversion",
+                                 Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "Different reversed items form the subscale conscientiousness",
+                                 Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "Different reversed items form the subscale neuroticism",
+                                 Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "Different reversed items form the subscale agreeableness",
+                                 Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "Different reversed items form the subscale openness",
+                                 Variable == "bfi_e1,...,bfi_e9" ~   "Different  items form the subscale extroversion",
+                                 Variable == "bfi_c1,...,bfi_c9" ~   "Different items form the subscale conscientiousness",
+                                 Variable == "bfi_n1,...,bfi_n9" ~   "Different items form the subscale neuroticism",
+                                 Variable == "bfi_a1,...,bfi_a9" ~   "Different items form the subscale agreeableness",
+                                 Variable == "bfi_o1,...,bfi_o9" ~   "Different items form the subscale openness",
+                                 TRUE ~ NA))|>
+  mutate(based_on = case_when(Variable == "data_bfi_raw" ~ "",
+                              Variable == "data_demographics_raw" ~ "",
+                              Variable == "data_iat_raw" ~ "",
+                              Variable == "data_demographics" ~ "data_demographics_raw",
+                              Variable == "data_iat" ~ "",
+                              Variable == "data_bfi" ~ "",
+                              Variable == "data_bfi_completeness" ~ "",
+                              Variable == "ddata_iat_completeness" ~ "",
+                              Variable == "data_bfi_logical_scores" ~ "",
+                              Variable == "data_bfi_meanscore" ~ "",
+                              Variable == "data_bfi_rev" ~ "",
+                              Variable == "data_bfi_rev_without_onrc" ~ "",
+                              Variable == "data_bfi_rev_without_onrc_ex_compl" ~ "",
+                              Variable == "data_demographics_raw" ~ "",
+                              Variable == "data_iat_D" ~ "",
+                              Variable == "data_iat_mean1" ~ "",
+                              Variable == "data_iat_mean2" ~ "",
+                              Variable == "data_iat_performance" ~ "",
+                              Variable == "data_iat_SD" ~ "",
+                              Variable == "data_processed" ~ "",
+                              Variable == "data_processed_temp" ~ "data_processed",
+                              Variable == "maxscore_bfi_e" ~ "",
+                              Variable == "maxscore_bfi_c" ~ "",
+                              Variable == "maxscore_bfi_n" ~ "",
+                              Variable == "maxscore_bfi_a" ~ "",
+                              Variable == "maxscore_bfi_o" ~ "",
+                              Variable == "minscore_bfi_e" ~ "",
+                              Variable == "minscore_bfi_c" ~ "",
+                              Variable == "minscore_bfi_n" ~ "",
+                              Variable == "minscore_bfi_a" ~ "",
+                              Variable == "minscore_bfi_o" ~ "",
+                              Variable == "cor_bfi_e" ~ "",
+                              Variable == "cor_bfi_c" ~ "",
+                              Variable == "cor_bfi_n" ~ "",
+                              Variable == "cor_bfi_a" ~ "",
+                              Variable == "cor_bfi_o" ~ "",
+                              Variable == "negative_values_e_exist" ~ "",
+                              Variable == "negative_values_c_exist" ~ "",
+                              Variable == "negative_values_n_exist" ~ "",
+                              Variable == "negative_values_a_exist" ~ "",
+                              Variable == "negative_values_o_exist" ~ "",
+                              Variable == "result_range_e" ~ "",
+                              Variable == "result_range_c" ~ "",
+                              Variable == "result_range_n" ~ "",
+                              Variable == "result_range_a" ~ "",
+                              Variable == "result_range_o" ~ "",
+                              Variable == "result_bfi_compl" ~ "",
+                              Variable == "result_bfi_logical_scores" ~ "",
+                              Variable == "result_iat_compl" ~ "",
+                              Variable == "result_iat_perf" ~ "",
+                              Variable == "result_master_exclusion" ~ "",
+                              Variable == "codebook_E" ~ "",
+                              Variable == "codebook_R" ~ "",
+                              Variable == "sorted_variable_codebook_E_dp_vtr" ~ "",
+                              Variable == "variable_codebook_E" ~ "",
+                              Variable == "variable_codebook_E_dp" ~ "",
+                              Variable == "variable_codebook_E_dp_vtr" ~ "",
+                              Variable == "variable_to_add_E" ~ "",
+                              Variable == "variable_to_add_R" ~ "",
+                              Variable == "variables_to_remove_R" ~ "",
+                              Variable == "variable_codebook_R_ls" ~ "",
+                              Variable == "bfi_e_mean" ~ "",
+                              Variable == "bfi_c_mean" ~ "",
+                              Variable == "bfi_n_mean" ~ "",
+                              Variable == "bfi_a_mean" ~ "",
+                              Variable == "bfi_o_mean" ~ "",
+                              Variable == "exclude_bfi_completeness" ~ "",
+                              Variable == "exclude_bfi_logical_scores" ~ "",
+                              Variable == "exclude_iat_completeness" ~ "",
+                              Variable == "exclude_iat_performance" ~ "",
+                              Variable == "exclude_participant" ~ "",
+                              Variable == "iat_D" ~ "",
+                              Variable == "iat_SD" ~ "",
+                              Variable == "iat_mean1" ~ "",
+                              Variable == "iat_mean2" ~ "",
+                              Variable == "unique_id" ~   "",
+                              Variable == "age" ~   "",
+                              Variable == "gender" ~   "",
+                              Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
+                              Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
+                              Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
+                              Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
+                              Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
+                              Variable == "bfi_e1,...,bfi_e9" ~   "",
+                              Variable == "bfi_c1,...,bfi_c9" ~   "",
+                              Variable == "bfi_n1,...,bfi_n9" ~   "",
+                              Variable == "bfi_a1,...,bfi_a9" ~   "",
+                              Variable == "bfi_o1,...,bfi_o9" ~   "",
+                              TRUE ~ NA))|>
+  mutate(new_changes = case_when(Variable == "data_bfi_raw" ~ "",
+                                 Variable == "data_demographics_raw" ~ "",
+                                 Variable == "data_iat_raw" ~ "",
+                                 Variable == "data_demographics" ~ "one-row-one-participant and age is numerical",
+                                 Variable == "data_iat" ~ "",
+                                 Variable == "data_bfi" ~ "",
+                                 Variable == "data_bfi_completeness" ~ "",
+                                 Variable == "ddata_iat_completeness" ~ "",
+                                 Variable == "data_bfi_logical_scores" ~ "",
+                                 Variable == "data_bfi_meanscore" ~ "",
+                                 Variable == "data_bfi_rev" ~ "",
+                                 Variable == "data_bfi_rev_without_onrc" ~ "",
+                                 Variable == "data_bfi_rev_without_onrc_ex_compl" ~ "",
+                                 Variable == "data_demographics_raw" ~ "",
+                                 Variable == "data_iat_D" ~ "",
+                                 Variable == "data_iat_mean1" ~ "",
+                                 Variable == "data_iat_mean2" ~ "",
+                                 Variable == "data_iat_performance" ~ "",
+                                 Variable == "data_iat_SD" ~ "",
+                                 Variable == "data_processed" ~ "",
+                                 Variable == "data_processed_temp" ~ "",
+                                 Variable == "maxscore_bfi_e" ~ "",
+                                 Variable == "maxscore_bfi_c" ~ "",
+                                 Variable == "maxscore_bfi_n" ~ "",
+                                 Variable == "maxscore_bfi_a" ~ "",
+                                 Variable == "maxscore_bfi_o" ~ "",
+                                 Variable == "minscore_bfi_e" ~ "",
+                                 Variable == "minscore_bfi_c" ~ "",
+                                 Variable == "minscore_bfi_n" ~ "",
+                                 Variable == "minscore_bfi_a" ~ "",
+                                 Variable == "minscore_bfi_o" ~ "",
+                                 Variable == "cor_bfi_e" ~ "",
+                                 Variable == "cor_bfi_c" ~ "",
+                                 Variable == "cor_bfi_n" ~ "",
+                                 Variable == "cor_bfi_a" ~ "",
+                                 Variable == "cor_bfi_o" ~ "",
+                                 Variable == "negative_values_e_exist" ~ "",
+                                 Variable == "negative_values_c_exist" ~ "",
+                                 Variable == "negative_values_n_exist" ~ "",
+                                 Variable == "negative_values_a_exist" ~ "",
+                                 Variable == "negative_values_o_exist" ~ "",
+                                 Variable == "result_range_e" ~ "",
+                                 Variable == "result_range_c" ~ "",
+                                 Variable == "result_range_n" ~ "",
+                                 Variable == "result_range_a" ~ "",
+                                 Variable == "result_range_o" ~ "",
+                                 Variable == "result_bfi_compl" ~ "",
+                                 Variable == "result_bfi_logical_scores" ~ "",
+                                 Variable == "result_iat_compl" ~ "",
+                                 Variable == "result_iat_perf" ~ "",
+                                 Variable == "result_master_exclusion" ~ "",
+                                 Variable == "codebook_E" ~ "",
+                                 Variable == "codebook_R" ~ "",
+                                 Variable == "sorted_variable_codebook_E_dp_vtr" ~ "",
+                                 Variable == "variable_codebook_E" ~ "",
+                                 Variable == "variable_codebook_E_dp" ~ "",
+                                 Variable == "variable_codebook_E_dp_vtr" ~ "",
+                                 Variable == "variable_to_add_E" ~ "",
+                                 Variable == "variable_to_add_R" ~ "",
+                                 Variable == "variables_to_remove_R" ~ "",
+                                 Variable == "variable_codebook_R_ls" ~ "",
+                                 Variable == "bfi_e_mean" ~ "",
+                                 Variable == "bfi_c_mean" ~ "",
+                                 Variable == "bfi_n_mean" ~ "",
+                                 Variable == "bfi_a_mean" ~ "",
+                                 Variable == "bfi_o_mean" ~ "",
+                                 Variable == "exclude_bfi_completeness" ~ "",
+                                 Variable == "exclude_bfi_logical_scores" ~ "",
+                                 Variable == "exclude_iat_completeness" ~ "",
+                                 Variable == "exclude_iat_performance" ~ "",
+                                 Variable == "exclude_participant" ~ "",
+                                 Variable == "iat_D" ~ "",
+                                 Variable == "iat_SD" ~ "",
+                                 Variable == "iat_mean1" ~ "",
+                                 Variable == "iat_mean2" ~ "",
+                                 Variable == "unique_id" ~   "",
+                                 Variable == "age" ~   "",
+                                 Variable == "gender" ~   "",
+                                 Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
+                                 Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
+                                 Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
+                                 Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
+                                 Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
+                                 Variable == "bfi_e1,...,bfi_e9" ~   "",
+                                 Variable == "bfi_c1,...,bfi_c9" ~   "",
+                                 Variable == "bfi_n1,...,bfi_n9" ~   "",
+                                 Variable == "bfi_a1,...,bfi_a9" ~   "",
+                                 Variable == "bfi_o1,...,bfi_o9" ~   "",
+                                 TRUE ~ NA))
+
+# Create an Excel workbook
+wb_Codebook_R <- createWorkbook()
+
+# Add a worksheet named "Codebook" to the workbook
+addWorksheet(wb_Codebook_R, "Codebook")
+
+# Write the data frame 'codebook_R' to the "Codebook" worksheet
+writeData(wb_Codebook_R, "Codebook", codebook_R)
+
+# Adjust the column widths of the "Codebook" worksheet to fit the content
+setColWidths(wb_Codebook_R, "Codebook", cols = 1:ncol(codebook_R), widths = "auto")
+
+# Get the current working directory
+script_dir <- getwd()
+
+# Save the workbook to an Excel file in the same directory as the R script
+saveWorkbook(wb_Codebook_R, file = file.path(script_dir, "R_processing_codebook.xlsx"), overwrite = TRUE)
 
 ```
 
