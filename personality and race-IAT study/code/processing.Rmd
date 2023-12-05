@@ -309,6 +309,41 @@ if (nrow(result_range_o) == 0) {
 
 ```{r}
 
+#data frame preparation: rename column names, filter test trials (block1,2,5), convert reaction time and unique_id into numeric and delete first row
+data_iat<-data_iat_raw|>
+  rename(unique_id=participant,
+         block_number=block,
+         block_required_responses=x3,
+         trial_responses=trial,
+         trial_accuracy=x5,
+         trial_reaction_time_in_ms=x6
+  )|>
+  slice(-1)|>
+  filter(block_number!="1",block_number!="2",block_number!="5")
+data_iat$ trial_reaction_time_in_ms <- as.numeric(data_iat$trial_reaction_time_in_ms)
+data_iat$unique_id <- as.numeric(data_iat$unique_id)
+
+#mean1
+data_iat_mean1 <- data_iat |> 
+  filter(block_number == 3 | block_number == 6) |>
+  group_by(unique_id) |> 
+  summarize(iat_mean1 = mean(trial_reaction_time_in_ms, na.rm = TRUE))
+#mean2
+data_iat_mean2 <- data_iat |> 
+  filter(block_number == 4 | block_number == 7) |>
+  group_by(unique_id) |> 
+  summarize(iat_mean2 = mean(trial_reaction_time_in_ms, na.rm = TRUE))
+#SD
+data_iat_SD <- data_iat |> 
+  filter(block_number == 3 | block_number == 4|block_number == 6 | block_number == 7) |>
+  group_by(unique_id) |> 
+  summarize(iat_SD = sd(trial_reaction_time_in_ms, na.rm = TRUE))
+#D
+data_iat_D <-data_iat_mean1  |>
+  full_join(data_iat_mean2, by = "unique_id") |> 
+  full_join(data_iat_SD, by = "unique_id")|>
+  mutate(iat_D=(iat_mean2-iat_mean1)/iat_SD)
+
 ```
 
 ### Sanity check: D scores in the range -2 to +2
@@ -316,7 +351,8 @@ if (nrow(result_range_o) == 0) {
   - Include a sanity check: check that all D scores are in the range -2 to +2. If not, revise your implementation of the scoring code.
 
 ```{r}
-
+all_values_within_range <- all(data_iat_D$iat_D >= -2 & data_iat_D$iat_D <= 2)
+cat("Results:\n",ifelse(all_values_within_range, "All scores are in the range -2 to +2", "All scores are not in the range -2 to +2"))
 
 ```
 
@@ -326,6 +362,17 @@ if (nrow(result_range_o) == 0) {
 
 ```{r}
 
+data_iat_completeness<-data_iat|>
+  group_by(unique_id) |>
+  count() |>
+  ungroup() |>
+  mutate(exclude_iat_completeness = ifelse(n == 120, "include", "exclude")) |>
+  select(-n)
+
+# Print the results
+result_iat_compl <- table(data_iat_completeness$exclude_iat_completeness)
+cat("The distribution for IAT completeness:\n exclude->", result_iat_compl["exclude"], "and include->", result_iat_compl["include"])
+
 ```
 
 ### Exclusion variable: iat_performance 
@@ -334,6 +381,18 @@ if (nrow(result_range_o) == 0) {
 
 ```{r}
 
+data_iat_performance <- data_iat |> 
+  mutate(latency_prob = if_else(trial_reaction_time_in_ms < 300, TRUE, FALSE),
+         accurcay_prob = if_else(trial_accuracy =="correct", TRUE, FALSE)) |>
+  group_by(unique_id) |> 
+  summarize(proportion_iat_latency = mean(latency_prob),
+            proportion_iat_accurcay = mean(accurcay_prob))|>
+  mutate(exclude_iat_performance = ifelse(proportion_iat_latency > 0.10|proportion_iat_accurcay<0.75, "exclude", "include"))|>
+  select(-proportion_iat_latency,-proportion_iat_accurcay)
+
+# Print the results
+result_iat_perf <- table(data_iat_performance$exclude_iat_performance)
+cat("The distribution for IAT performance:\n exclude->", result_iat_perf["exclude"], "and include->", result_iat_perf["include"])
 
 ```
 
