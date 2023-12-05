@@ -74,6 +74,32 @@ data_demographics <- data_demographics_raw |>
 - Reverse score the negatively worded items: the extroversion scale items 2, 5 and 7, conscientiousness items 2, 4 5 and 9, neuroticism items 2, 5, and 7, agreeableness 1, 3, 6, and 8, and openness items 7 and 9.
 ```{r}
 
+# Create new columns with reserved numbers - logical minimum and maximum scores (1 to 6)
+## If the values in the variable bfi_xX are between 1 and 6, then the corresponding values in the new variable bfi_xX_rev will be computed as 7 - bfi_xX.
+## If the values in bfi_xX do not fall within the range of 1 to 6, then the values in bfi_xX_rev will be NA.
+data_bfi_rev <- data_bfi_raw |>
+  mutate(bfi_e2_rev = ifelse(bfi_e2 >= 1 & bfi_e2 <= 6, 7 - bfi_e2, NA),
+         bfi_e5_rev = ifelse(bfi_e5 >= 1 & bfi_e5 <= 6, 7 - bfi_e5, NA),
+         bfi_e7_rev = ifelse(bfi_e7 >= 1 & bfi_e7 <= 6, 7 - bfi_e7, NA),
+         bfi_c2_rev = ifelse(bfi_c2 >= 1 & bfi_c2 <= 6, 7 - bfi_c2, NA),
+         bfi_c4_rev = ifelse(bfi_c4 >= 1 & bfi_c4 <= 6, 7 - bfi_c4, NA),
+         bfi_c5_rev = ifelse(bfi_c5 >= 1 & bfi_c5 <= 6, 7 - bfi_c5, NA),
+         bfi_c9_rev = ifelse(bfi_c9 >= 1 & bfi_c9 <= 6, 7 - bfi_c9, NA),
+         bfi_n2_rev = ifelse(bfi_n2 >= 1 & bfi_n2 <= 6, 7 - bfi_n2, NA),
+         bfi_n5_rev = ifelse(bfi_n5 >= 1 & bfi_n5 <= 6, 7 - bfi_n5, NA),
+         bfi_n7_rev = ifelse(bfi_n7 >= 1 & bfi_n7 <= 6, 7 - bfi_n7, NA),
+         bfi_a1_rev = ifelse(bfi_a1 >= 1 & bfi_a1 <= 6, 7 - bfi_a1, NA),
+         bfi_a3_rev = ifelse(bfi_a3 >= 1 & bfi_a3 <= 6, 7 - bfi_a3, NA),
+         bfi_a6_rev = ifelse(bfi_a6 >= 1 & bfi_a6 <= 6, 7 - bfi_a6, NA),
+         bfi_a8_rev = ifelse(bfi_a8 >= 1 & bfi_a8 <= 6, 7 - bfi_a8, NA),
+         bfi_o7_rev = ifelse(bfi_o7 >= 1 & bfi_o7 <= 6, 7 - bfi_o7, NA),
+         bfi_o9_rev = ifelse(bfi_o9 >= 1 & bfi_o9 <= 6, 7 - bfi_o9, NA))
+
+
+#Create a new data frame that excludes the old item columns that have been reversed (without_onrc= without original not reversed columns)
+data_bfi_rev_without_onrc<-data_bfi_rev|>
+  select(-bfi_e2, -bfi_e5, -bfi_e7,-bfi_c2, -bfi_c4, -bfi_c5, -bfi_c9,-bfi_n2, -bfi_n5, -bfi_n7,-bfi_a1, -bfi_a3, -bfi_a6, -bfi_a8,-bfi_o7, -bfi_o9)
+
 ```
 
 ### Sanity check: correlation table among the items
@@ -82,12 +108,60 @@ data_demographics <- data_demographics_raw |>
 
 ```{r}
 
+#extroversion
+cor_bfi_e<-data_bfi_rev_without_onrc|>select(starts_with("bfi_e"))|>
+  cor(use = "complete.obs", method = "pearson")
+#conscientiousness
+cor_bfi_c<-data_bfi_rev_without_onrc|>select(starts_with("bfi_c"))|>
+  cor(use = "complete.obs", method = "pearson")
+#neuroticism
+cor_bfi_n<-data_bfi_rev_without_onrc|>select(starts_with("bfi_n"))|>
+  cor(use = "complete.obs", method = "pearson")
+#agreeableness
+cor_bfi_a<-data_bfi_rev_without_onrc|>select(starts_with("bfi_a"))|>
+  cor(use = "complete.obs", method = "pearson")
+#openness
+cor_bfi_o<-data_bfi_rev_without_onrc|>select(starts_with("bfi_o"))|>
+  cor(use = "complete.obs", method = "pearson")
+
+#Print if negative correlations exist
+negative_values_e_exist <- any(cor_bfi_e < 0)
+negative_values_c_exist <- any(cor_bfi_c < 0)
+negative_values_n_exist <- any(cor_bfi_n < 0)
+negative_values_a_exist <- any(cor_bfi_a < 0)
+negative_values_o_exist <- any(cor_bfi_o < 0)
+
+if (negative_values_e_exist | negative_values_c_exist| negative_values_n_exist| negative_values_a_exist| negative_values_o_exist) {
+  print("In at least one subscale, there is at least one negative correlation.")
+} else {
+  print("There are no negative correlations in any of the five subscales.")
+}
+
+#Print the results for every subscale
+cat("Results:\n","extroversion:", ifelse(negative_values_e_exist, "Negative correlation (s)", "No negative correlation"), "\n",
+    "conscientiousness:", ifelse(negative_values_c_exist, "Negative correlation (s)", "No negative correlation"), "\n",
+    "neuroticism:", ifelse(negative_values_n_exist, "Negative correlation (s)", "No negative correlation"), "\n",
+    "agreeableness:", ifelse(negative_values_a_exist, "Negative correlation (s)", "No negative correlation"), "\n",
+    "openness:", ifelse(negative_values_o_exist, "Negative correlation (s)", "No negative correlation"), "\n")
+
 ```
 
 ### Exclusion variable: bfi_logical_scores
 
 - Check that the item level data does not violate the logical minimum and maximum scores (1 to 6). Create an exclusion variable and set participants with impossible data to "exclude". 
 ```{r}
+
+#Create a new exclusion data frame:
+##The condition in the code is checking, row-wise, whether the sum of logical conditions for values in columns starting with "bfi_" is greater than 0. The specific logical conditions are that values should be less than 1 or greater than 6. If this sum is greater than 0 for a given row, the corresponding value in the new column exclude_bfi_logicalscores is set to "exclude".
+data_bfi_logical_scores <- data_bfi_raw|>
+  rowwise()|>
+  mutate(exclude_bfi_logical_scores = ifelse(sum(c_across(starts_with("bfi_")) < 1 | c_across(starts_with("bfi_")) > 6, na.rm = TRUE) > 0, "exclude", "include"))|>
+  select(unique_id,exclude_bfi_logical_scores)
+
+
+# Print the results
+result_bfi_logical_scores <- table(data_bfi_logical_scores$exclude_bfi_logical_scores)
+cat("The distribution for BFI logical scores:\n exclude->", result_bfi_logical_scores["exclude"], "and include->", result_bfi_logical_scores["include"])
 
 ```
  
@@ -97,12 +171,50 @@ data_demographics <- data_demographics_raw |>
  
 ```{r}
 
+#Create a new exclusion data frame
+##For each subset of columns (e.g., "bfi_e"), it checks whether there are any non-zero values (rowSums(...) > 0) and whether there are any missing values (rowSums(is.na(...)) > 0). If both conditions are true for a row, it marks the row with "exclude". 
+
+data_bfi_completeness <- data_bfi_raw |>
+  mutate(exclude_bfi_completeness = ifelse(
+      rowSums(select(data_bfi_raw, starts_with("bfi_e")), na.rm = TRUE) > 0 & rowSums(is.na(select(data_bfi_raw, starts_with("bfi_e")))) > 0 |
+      rowSums(select(data_bfi_raw, starts_with("bfi_c")), na.rm = TRUE) > 0 & rowSums(is.na(select(data_bfi_raw, starts_with("bfi_c")))) > 0 |
+      rowSums(select(data_bfi_raw, starts_with("bfi_n")), na.rm = TRUE) > 0 & rowSums(is.na(select(data_bfi_raw, starts_with("bfi_n")))) > 0 |
+      rowSums(select(data_bfi_raw, starts_with("bfi_a")), na.rm = TRUE) > 0 & rowSums(is.na(select(data_bfi_raw, starts_with("bfi_a")))) > 0 |
+      rowSums(select(data_bfi_raw, starts_with("bfi_o")), na.rm = TRUE) > 0 & rowSums(is.na(select(data_bfi_raw, starts_with("bfi_o")))) > 0,
+      "exclude",
+      "include"))|>
+  select(unique_id,exclude_bfi_completeness)
+
+# Print the results
+result_bfi_compl <- table(data_bfi_completeness$exclude_bfi_completeness)
+cat("The distribution for BFI completeness:\n exclude->", result_bfi_compl["exclude"], "and include->", result_bfi_compl["include"])
+
 ```
 
 ## Mean score BFI scale
 
 - Mean-score the subscales of the BFI scale. Each participant only got either 2 or 3 subscales.
 ```{r}
+
+#Exclude the rows 
+data_bfi_rev_without_onrc_ex_compl<-data_bfi_rev_without_onrc|>
+  full_join(data_bfi_completeness, by = "unique_id")|>
+  filter(exclude_bfi_completeness=="include")
+
+#Create a new column with the mean values for each subscale
+data_bfi_meanscore <- data_bfi_rev_without_onrc_ex_compl |>
+  mutate(bfi_e_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_e")), na.rm = TRUE) > 0,
+                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_e")), na.rm = TRUE), NA),
+         bfi_c_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_c")), na.rm = TRUE) > 0,
+                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_c")), na.rm = TRUE), NA),
+         bfi_n_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_n")), na.rm = TRUE) > 0,
+                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_n")), na.rm = TRUE), NA),
+         bfi_a_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_a")), na.rm = TRUE) > 0,
+                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_a")), na.rm = TRUE), NA),
+         bfi_o_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE) > 0,
+                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE), NA))|>
+  select(unique_id,bfi_e_mean,bfi_c_mean,bfi_n_mean,bfi_a_mean,bfi_o_mean)
+
 
 ```
 
@@ -111,6 +223,82 @@ data_demographics <- data_demographics_raw |>
 - Check that the mean scores do not violate the min and max possible score (i.e., first determine this min and max score), and revise your scoring code if it does. 
 
 ```{r}
+
+#Max score = number of columns *6
+maxscore_bfi_e <- data_bfi_raw |>
+  select(starts_with("bfi_e")) |>
+  ncol()*6
+maxscore_bfi_c <- data_bfi_raw |>
+  select(starts_with("bfi_c")) |>
+  ncol()*6
+maxscore_bfi_n <- data_bfi_raw |>
+  select(starts_with("bfi_n")) |>
+  ncol()*6
+maxscore_bfi_a <- data_bfi_raw |>
+  select(starts_with("bfi_a")) |>
+  ncol()*6
+maxscore_bfi_o <- data_bfi_raw |>
+  select(starts_with("bfi_o")) |>
+  ncol()*6
+
+#Min score = number of columns *1
+minscore_bfi_e <- data_bfi_raw |>
+  select(starts_with("bfi_e")) |>
+  ncol()*1
+minscore_bfi_c <- data_bfi_raw |>
+  select(starts_with("bfi_c")) |>
+  ncol()*1
+minscore_bfi_n <- data_bfi_raw |>
+  select(starts_with("bfi_n")) |>
+  ncol()*1
+minscore_bfi_a <- data_bfi_raw |>
+  select(starts_with("bfi_a")) |>
+  ncol()*1
+minscore_bfi_o <- data_bfi_raw |>
+  select(starts_with("bfi_o")) |>
+  ncol()*1
+
+result_range_e <- data_bfi_meanscore |>
+  filter(bfi_e_mean > maxscore_bfi_e | bfi_e_mean < minscore_bfi_e)
+result_range_c <- data_bfi_meanscore |>
+  filter(bfi_c_mean > maxscore_bfi_c | bfi_c_mean < minscore_bfi_c)
+result_range_n <- data_bfi_meanscore |>
+  filter(bfi_n_mean > maxscore_bfi_n | bfi_n_mean < minscore_bfi_n)
+result_range_a <- data_bfi_meanscore |>
+  filter(bfi_a_mean > maxscore_bfi_a | bfi_a_mean < minscore_bfi_a)
+result_range_o <- data_bfi_meanscore |>
+  filter(bfi_o_mean > maxscore_bfi_o | bfi_o_mean < minscore_bfi_o)
+
+#Print the results for every subscale
+if (nrow(result_range_e) == 0) {
+  print("The mean scores extroversion do not violate the min and max possible score")
+} else {
+  print("Attention: The mean scores extroversion do  violate the min and max possible score")
+}
+
+if (nrow(result_range_c) == 0) {
+  print("The mean scores conscientiousness do not violate the min and max possible score")
+} else {
+  print("Attention: The mean scores conscientiousness do  violate the min and max possible score")
+}
+
+if (nrow(result_range_n) == 0) {
+  print("The mean scores neuroticism do not violate the min and max possible score")
+} else {
+  print("Attention: The mean scores neuroticism do  violate the min and max possible score")
+}
+
+if (nrow(result_range_a) == 0) {
+  print("The mean scores agreeablenessn do not violate the min and max possible score")
+} else {
+  print("Attention: The mean scores agreeableness do  violate the min and max possible score")
+}
+
+if (nrow(result_range_o) == 0) {
+  print("The mean scores openness do not violate the min and max possible score")
+} else {
+  print("Attention: The mean scores openness do  violate the min and max possible score")
+}
 
 ```
 
