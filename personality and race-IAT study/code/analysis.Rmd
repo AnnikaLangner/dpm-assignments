@@ -137,9 +137,6 @@ Gender
 
 ```{r}
 
-
-
-
 ```
 
 # Descriptives statistics
@@ -150,6 +147,38 @@ Gender
 
 ```{r}
 
+data_alpha_e <- data_processed_after_exclusions |>
+  select(starts_with("bfi_e")) |>
+  select(-bfi_e_mean)
+
+data_alpha_c <- data_processed_after_exclusions |>
+  select(starts_with("bfi_c")) |>
+  select(-bfi_c_mean)
+
+data_alpha_n <- data_processed_after_exclusions |>
+  select(starts_with("bfi_n")) |>
+  select(-bfi_n_mean)
+
+data_alpha_a <- data_processed_after_exclusions |>
+  select(starts_with("bfi_a")) |>
+  select(-bfi_a_mean)
+
+data_alpha_o <- data_processed_after_exclusions |>
+  select(starts_with("bfi_o")) |>
+  select(-bfi_o_mean)
+
+alpha_e <- alpha( data_alpha_e, na.rm = TRUE)
+alpha_c <- alpha( data_alpha_c, na.rm = TRUE)
+alpha_n <- alpha( data_alpha_n, na.rm = TRUE)
+alpha_a <- alpha( data_alpha_a, na.rm = TRUE)
+alpha_o <- alpha( data_alpha_o, na.rm = TRUE)
+
+cat("Cronbach's alpha for the subscales:\n
+    extroversion:", round(alpha_e$total$raw_alpha,2), "\n
+    conscientiousness:",round( alpha_c$total$raw_alpha,2), "\n
+    neuroticism:", round(alpha_n$total$raw_alpha,2), "\n
+    agreeableness:", round(alpha_a$total$raw_alpha,2), "\n
+    openness:", round(alpha_o$total$raw_alpha,2), "\n")
 
 ```
 
@@ -158,6 +187,78 @@ Gender
 - Create series of histograms of the distribution of scores on each of the BFI subscales and the IAT.
 
 ```{r}
+
+#extroversion
+ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean)) +
+  geom_histogram(binwidth = 1, 
+                 fill = viridis_pal(begin = 0.5, option = "mako")(1), 
+                 color = viridis_pal(begin = 0.30, option = "mako")(1)) + 
+  xlab("Mean extroversion") +
+  ylab("Frequency") +
+  theme_linedraw() +
+  scale_x_continuous(breaks = pretty_breaks(n = 10))+
+ ggtitle("Distribution of extroversion")
+
+#conscientiousness
+ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean)) +
+  geom_histogram(binwidth = 1, 
+                 fill = viridis_pal(begin = 0.5, option = "mako")(1), 
+                 color = viridis_pal(begin = 0.30, option = "mako")(1)) + 
+  xlab("Mean conscientiousness") +
+  ylab("Frequency") +
+  theme_linedraw() +
+  scale_x_continuous(breaks = pretty_breaks(n = 10)) +
+  scale_y_continuous(breaks = seq(0, 10, by = 2),
+                     labels = as.character(seq(0, 10, by = 2))) +  
+  ggtitle("Distribution of conscientiousness")
+
+#neuroticism
+ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean)) +
+  geom_histogram(binwidth = 1, 
+                 fill = viridis_pal(begin = 0.5, option = "mako")(1), 
+                 color = viridis_pal(begin = 0.30, option = "mako")(1)) + 
+  xlab("Mean neuroticism") +
+  ylab("Frequency") +
+  theme_linedraw() +
+  scale_x_continuous(breaks = pretty_breaks(n = 10))+
+ ggtitle("Distribution of neuroticism")
+
+#agreeableness
+ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean)) +
+  geom_histogram(binwidth = 1, 
+                 fill = viridis_pal(begin = 0.5, option = "mako")(1), 
+                 color = viridis_pal(begin = 0.30, option = "mako")(1)) + 
+  xlab("Mean agreeableness") +
+  ylab("Frequency") +
+  theme_linedraw() +
+  scale_x_continuous(breaks = pretty_breaks(n = 10))+
+  scale_y_continuous(breaks = seq(0, 10, by = 2),
+                     labels = as.character(seq(0, 10, by = 2))) + 
+ ggtitle("Distribution of agreeableness")
+
+#openness
+ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean)) +
+  geom_histogram(binwidth = 1, 
+                 fill = viridis_pal(begin = 0.5, option = "mako")(1), 
+                 color = viridis_pal(begin = 0.30, option = "mako")(1)) + 
+  xlab("Mean openness") +
+  ylab("Frequency") +
+  theme_linedraw() +
+  scale_x_continuous(breaks = pretty_breaks(n = 10))+
+ ggtitle("Distribution of openness")
+
+
+#IAT
+ggplot(data_processed_after_exclusions, aes(x = iat_D)) +
+  geom_histogram(binwidth = 0.03,
+                 boundary = 0,
+                 fill = viridis_pal(begin = 0.45, option = "mako")(1), 
+                 color = viridis_pal(begin = 0.30, option = "mako")(1)) + 
+  xlab("IAT D") +
+  ylab("Frequency") +
+  theme_linedraw() +
+  scale_x_continuous(breaks = pretty_breaks(n = 10))+
+ ggtitle("Distribution of IAT scores")
 
 ```
 
