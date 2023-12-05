@@ -1371,6 +1371,230 @@ window.initializeCodeFolding = function(show) {
 
 }
 </script>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
 
 <style type="text/css">
 code{white-space: pre-wrap;}
@@ -1680,14 +1904,25 @@ big-5 personality facets and implicit racial attitudes</h1>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">library</span>(cowplot)</span>
 <span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="fu">library</span>(ggExtra)</span>
 <span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="fu">library</span>(psych)</span>
-<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
-<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">library</span>(plyr)</span></code></pre></div>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">library</span>(plyr)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">library</span>(stringr)</span></code></pre></div>
 </div>
 <div id="data" class="section level1">
 <h1>Data</h1>
 <ul>
 <li>Exclude participants using the master exclusion variable</li>
 </ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co">#Load the processed data</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>data_processed <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">&quot;../data/processed/data_processed.csv&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#Exclude rows without unique_id --&gt; exclude_unique_id_is.na</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>data_processed_without_unique_id <span class="ot">&lt;-</span> data_processed <span class="sc">|&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="fu">filter</span>(exclude_unique_id_is.na <span class="sc">==</span> <span class="st">&quot;include&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#Exclude participants --&gt; master exclusion variable</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>data_processed_after_exclusions <span class="ot">&lt;-</span> data_processed <span class="sc">|&gt;</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="fu">filter</span>(exclude_participant <span class="sc">==</span> <span class="st">&quot;include&quot;</span>)</span></code></pre></div>
 </div>
 <div id="sample-descriptives" class="section level1">
 <h1>Sample descriptives</h1>
@@ -1697,6 +1932,98 @@ big-5 personality facets and implicit racial attitudes</h1>
 <li>Create a table with the total number of participants before
 exclusions.</li>
 </ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The question is &#39;what do you mean by total number of participants before exclusions&#39;?</span><span class="sc">\n</span><span class="st"> Before any exclusion, there is the count of rows, which you can see in the next table (1968).&quot;</span>)</span></code></pre></div>
+<pre><code>## The question is &#39;what do you mean by total number of participants before exclusions&#39;?
+##  Before any exclusion, there is the count of rows, which you can see in the next table (1968).</code></pre>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>data_processed  <span class="sc">%&gt;%</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  {<span class="fu">data.frame</span>(<span class="at">n =</span> <span class="fu">nrow</span>(.))} <span class="sc">%&gt;%</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="at">header =</span> <span class="fu">c</span>(<span class="st">&quot;For analysis&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">kable_classic</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+For analysis
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1968
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;However, there are also rows where no unique_id exists. Do these empty rows also represent participants, or should they be ignored? If ignored, the count would be 1932.&quot;</span>)</span></code></pre></div>
+<pre><code>## However, there are also rows where no unique_id exists. Do these empty rows also represent participants, or should they be ignored? If ignored, the count would be 1932.</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>data_processed_without_unique_id <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  {<span class="fu">data.frame</span>(<span class="at">n =</span> <span class="fu">nrow</span>(.))} <span class="sc">%&gt;%</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="at">header =</span> <span class="fu">c</span>(<span class="st">&quot;For analysis&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">kable_classic</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+For analysis
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+1932
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;And assuming that the demographic questions were only an option and the actual study revolves around IAT and BFI, could one argue that we only consider individuals who have answered at least one item in BFI and/or IAT? In that case, the count would be 179.&quot;</span>)</span></code></pre></div>
+<pre><code>## And assuming that the demographic questions were only an option and the actual study revolves around IAT and BFI, could one argue that we only consider individuals who have answered at least one item in BFI and/or IAT? In that case, the count would be 179.</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>data_processed  <span class="sc">%&gt;%</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(exclude_iat_completeness) <span class="sc">|!</span><span class="fu">is.na</span>(exclude_iat_performance) <span class="sc">|!</span><span class="fu">is.na</span>(exclude_bfi_completeness) <span class="sc">|!</span><span class="fu">is.na</span>(exclude_bfi_logical_scores) )<span class="sc">%&gt;%</span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  {<span class="fu">data.frame</span>(<span class="at">n =</span> <span class="fu">nrow</span>(.))} <span class="sc">%&gt;%</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="at">header =</span> <span class="fu">c</span>(<span class="st">&quot;For analysis&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="fu">kable_classic</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+For analysis
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+179
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="sample-size-after-exclusions" class="section level3">
 <h3>Sample size after exclusions</h3>
@@ -1704,6 +2031,34 @@ exclusions.</li>
 <li>Create a table with the total number of participants after
 exclusions.</li>
 </ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>data_processed_after_exclusions <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>  {<span class="fu">data.frame</span>(<span class="at">n =</span> <span class="fu">nrow</span>(.))} <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="at">header =</span> <span class="fu">c</span>(<span class="st">&quot;For analysis&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">kable_classic</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="1">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+For analysis
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+n
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+161
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="age-and-gender" class="section level3">
 <h3>Age and Gender</h3>
@@ -1714,6 +2069,49 @@ proportion of participants for which each demographics variable was
 available.</li>
 </ul>
 <p>Age</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>data_processed_after_exclusions <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age =</span> <span class="fu">as.numeric</span>(age)) <span class="sc">|&gt;</span></span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">Mean =</span> <span class="fu">mean</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>            <span class="at">SD =</span> <span class="fu">sd</span>(age, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>  <span class="fu">mutate_all</span>(<span class="at">.funs =</span> janitor<span class="sc">::</span>round_half_up, <span class="at">digits =</span> <span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="fu">add_header_above</span>(<span class="at">header =</span> <span class="fu">c</span>(<span class="st">&quot;Age&quot;</span> <span class="ot">=</span> <span class="dv">2</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="fu">kable_classic</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<table class=" lightable-classic" style="font-family: &quot;Arial Narrow&quot;, &quot;Source Sans Pro&quot;, sans-serif; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="border-bottom:hidden;padding-bottom:0; padding-left:3px;padding-right:3px;text-align: center; " colspan="2">
+<div style="border-bottom: 1px solid #ddd; padding-bottom: 5px; ">
+Age
+</div>
+</th>
+</tr>
+<tr>
+<th style="text-align:right;">
+Mean
+</th>
+<th style="text-align:right;">
+SD
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+30.6
+</td>
+<td style="text-align:right;">
+11.3
+</td>
+</tr>
+</tbody>
+</table>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="co">#Information about age = NA</span></span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>count_na_age_number <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(data_processed_after_exclusions<span class="sc">$</span>age))</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>count_na_age_proprtion<span class="ot">&lt;-</span><span class="fu">round</span>((<span class="fu">nrow</span>(data_processed_after_exclusions)<span class="sc">-</span><span class="fu">sum</span>(<span class="fu">is.na</span>(data_processed_after_exclusions<span class="sc">$</span>age)))<span class="sc">/</span><span class="fu">nrow</span>(data_processed_after_exclusions),<span class="dv">2</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">cat</span>(count_na_age_number, <span class="st">&quot;person(s) reported no age.</span><span class="sc">\n</span><span class="st"> The proportion of participants for which the age variable was available is&quot;</span>,count_na_age_proprtion,<span class="st">&quot;.&quot;</span>)</span></code></pre></div>
+<pre><code>## 22 person(s) reported no age.
+##  The proportion of participants for which the age variable was available is 0.86 .</code></pre>
 <p>Gender</p>
 </div>
 </div>
@@ -1786,7 +2184,7 @@ plot to disk as a .pdf and .png in the “communications” folder.</li>
 </div>
 <div id="session-info" class="section level1">
 <h1>Session info</h1>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.3.1 (2023-06-16)
 ## Platform: aarch64-apple-darwin20 (64-bit)
 ## Running under: macOS Sonoma 14.0
@@ -1814,19 +2212,20 @@ plot to disk as a .pdf and .png in the “communications” folder.</li>
 ## loaded via a namespace (and not attached):
 ##  [1] gtable_0.3.4      xfun_0.40         bslib_0.5.1       lattice_0.21-8   
 ##  [5] tzdb_0.4.0        vctrs_0.6.3       tools_4.3.1       generics_0.1.3   
-##  [9] parallel_4.3.1    fansi_1.0.4       pkgconfig_2.0.3   webshot_0.5.5    
-## [13] lifecycle_1.0.3   compiler_4.3.1    mnormt_2.1.1      munsell_0.5.0    
-## [17] snakecase_0.11.1  httpuv_1.6.11     htmltools_0.5.6   sass_0.4.7       
-## [21] yaml_2.3.7        pillar_1.9.0      later_1.3.1       jquerylib_0.1.4  
-## [25] ellipsis_0.3.2    cachem_1.0.8      nlme_3.1-162      mime_0.12        
-## [29] tidyselect_1.2.0  rvest_1.0.3       digest_0.6.33     stringi_1.7.12   
-## [33] fastmap_1.1.1     grid_4.3.1        colorspace_2.1-0  cli_3.6.1        
-## [37] magrittr_2.0.3    utf8_1.2.3        withr_2.5.0       promises_1.2.1   
-## [41] timechange_0.2.0  rmarkdown_2.24    httr_1.4.7        hms_1.1.3        
-## [45] shiny_1.7.5       evaluate_0.21     miniUI_0.1.1.1    viridisLite_0.4.2
-## [49] rlang_1.1.1       Rcpp_1.0.11       xtable_1.8-4      glue_1.6.2       
-## [53] xml2_1.3.5        svglite_2.1.1     rstudioapi_0.15.0 jsonlite_1.8.7   
-## [57] R6_2.5.1          systemfonts_1.0.4</code></pre>
+##  [9] parallel_4.3.1    fansi_1.0.4       highr_0.10        pkgconfig_2.0.3  
+## [13] webshot_0.5.5     lifecycle_1.0.3   compiler_4.3.1    mnormt_2.1.1     
+## [17] munsell_0.5.0     snakecase_0.11.1  httpuv_1.6.11     htmltools_0.5.6  
+## [21] sass_0.4.7        yaml_2.3.7        crayon_1.5.2      pillar_1.9.0     
+## [25] later_1.3.1       jquerylib_0.1.4   ellipsis_0.3.2    cachem_1.0.8     
+## [29] nlme_3.1-162      mime_0.12         tidyselect_1.2.0  rvest_1.0.3      
+## [33] digest_0.6.33     stringi_1.7.12    fastmap_1.1.1     grid_4.3.1       
+## [37] colorspace_2.1-0  cli_3.6.1         magrittr_2.0.3    utf8_1.2.3       
+## [41] withr_2.5.0       promises_1.2.1    bit64_4.0.5       timechange_0.2.0 
+## [45] rmarkdown_2.24    httr_1.4.7        bit_4.0.5         hms_1.1.3        
+## [49] shiny_1.7.5       evaluate_0.21     miniUI_0.1.1.1    viridisLite_0.4.2
+## [53] rlang_1.1.1       Rcpp_1.0.11       xtable_1.8-4      glue_1.6.2       
+## [57] xml2_1.3.5        vroom_1.6.3       svglite_2.1.1     rstudioapi_0.15.0
+## [61] jsonlite_1.8.7    R6_2.5.1          systemfonts_1.0.4</code></pre>
 </div>
 
 

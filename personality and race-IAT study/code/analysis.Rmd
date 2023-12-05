@@ -36,8 +36,10 @@ library(scales)
 library(cowplot)
 library(ggExtra)
 library(psych)
-
 library(plyr)
+library(dplyr)
+library(stringr)
+
 ```
 
 # Data
@@ -45,6 +47,17 @@ library(plyr)
 - Exclude participants using the master exclusion variable
 
 ```{r}
+
+#Load the processed data
+data_processed <- read_csv("../data/processed/data_processed.csv")
+
+#Exclude rows without unique_id --> exclude_unique_id_is.na
+data_processed_without_unique_id <- data_processed |>
+  filter(exclude_unique_id_is.na == "include")
+
+#Exclude participants --> master exclusion variable
+data_processed_after_exclusions <- data_processed |>
+  filter(exclude_participant == "include")
 
 ```
 
@@ -54,8 +67,33 @@ library(plyr)
 
 - Create a table with the total number of participants before exclusions.
 
+
 ```{r}
 
+cat("The question is 'what do you mean by total number of participants before exclusions'?\n Before any exclusion, there is the count of rows, which you can see in the next table (1968).")
+
+data_processed  %>%
+  {data.frame(n = nrow(.))} %>%
+  kable() %>%
+  add_header_above(header = c("For analysis" = 1)) %>%
+  kable_classic(full_width = FALSE)
+
+cat("However, there are also rows where no unique_id exists. Do these empty rows also represent participants, or should they be ignored? If ignored, the count would be 1932.")
+
+data_processed_without_unique_id %>%
+  {data.frame(n = nrow(.))} %>%
+  kable() %>%
+  add_header_above(header = c("For analysis" = 1)) %>%
+  kable_classic(full_width = FALSE)
+
+cat("And assuming that the demographic questions were only an option and the actual study revolves around IAT and BFI, could one argue that we only consider individuals who have answered at least one item in BFI and/or IAT? In that case, the count would be 179.")
+
+data_processed  %>%
+  filter(!is.na(exclude_iat_completeness) |!is.na(exclude_iat_performance) |!is.na(exclude_bfi_completeness) |!is.na(exclude_bfi_logical_scores) )%>%
+  {data.frame(n = nrow(.))} %>%
+  kable() %>%
+  add_header_above(header = c("For analysis" = 1)) %>%
+  kable_classic(full_width = FALSE)
 
 ```
 
@@ -65,6 +103,11 @@ library(plyr)
 
 ```{r}
 
+data_processed_after_exclusions %>%
+  {data.frame(n = nrow(.))} %>%
+  kable() %>%
+  add_header_above(header = c("For analysis" = 1)) %>%
+  kable_classic(full_width = FALSE)
 
 ```
 ### Age and Gender
@@ -74,12 +117,28 @@ library(plyr)
 Age
 
 ```{r}
+data_processed_after_exclusions |>
+  mutate(age = as.numeric(age)) |>
+  summarise(Mean = mean(age, na.rm = TRUE),
+            SD = sd(age, na.rm = TRUE)) |>
+  mutate_all(.funs = janitor::round_half_up, digits = 1) |>
+  kable() |>
+  add_header_above(header = c("Age" = 2)) |>
+  kable_classic(full_width = FALSE)
+
+#Information about age = NA
+count_na_age_number <- sum(is.na(data_processed_after_exclusions$age))
+count_na_age_proprtion<-round((nrow(data_processed_after_exclusions)-sum(is.na(data_processed_after_exclusions$age)))/nrow(data_processed_after_exclusions),2)
+cat(count_na_age_number, "person(s) reported no age.\n The proportion of participants for which the age variable was available is",count_na_age_proprtion,".")
 
 ```
 
 Gender
 
 ```{r}
+
+
+
 
 ```
 
