@@ -1664,7 +1664,7 @@ border-radius: 0px;
 big-5 personality facets and implicit racial attitudes</h1>
 <h3 class="subtitle">Data processing</h3>
 <h4 class="author">Annika Langner</h4>
-<h4 class="date">05 December, 2023</h4>
+<h4 class="date">08 December, 2023</h4>
 
 </div>
 
@@ -1970,33 +1970,32 @@ practice blocks and must be discarded.</li>
 <span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a>         <span class="at">block_required_responses=</span>x3,</span>
 <span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a>         <span class="at">trial_responses=</span>trial,</span>
 <span id="cb24-7"><a href="#cb24-7" tabindex="-1"></a>         <span class="at">trial_accuracy=</span>x5,</span>
-<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>         <span class="at">trial_reaction_time_in_ms=</span>x6</span>
-<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
-<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="dv">1</span>)<span class="sc">|&gt;</span></span>
-<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>  <span class="fu">filter</span>(block_number<span class="sc">!=</span><span class="st">&quot;1&quot;</span>,block_number<span class="sc">!=</span><span class="st">&quot;2&quot;</span>,block_number<span class="sc">!=</span><span class="st">&quot;5&quot;</span>)</span>
-<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a>data_iat<span class="sc">$</span> trial_reaction_time_in_ms <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_iat<span class="sc">$</span>trial_reaction_time_in_ms)</span>
-<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a>data_iat<span class="sc">$</span>unique_id <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_iat<span class="sc">$</span>unique_id)</span>
-<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a></span>
-<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a><span class="co">#mean1</span></span>
-<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a>data_iat_mean1 <span class="ot">&lt;-</span> data_iat <span class="sc">|&gt;</span> </span>
-<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>  <span class="fu">filter</span>(block_number <span class="sc">==</span> <span class="dv">3</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">6</span>) <span class="sc">|&gt;</span></span>
-<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a>  <span class="fu">group_by</span>(unique_id) <span class="sc">|&gt;</span> </span>
-<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">iat_mean1 =</span> <span class="fu">mean</span>(trial_reaction_time_in_ms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a><span class="co">#mean2</span></span>
-<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a>data_iat_mean2 <span class="ot">&lt;-</span> data_iat <span class="sc">|&gt;</span> </span>
-<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a>  <span class="fu">filter</span>(block_number <span class="sc">==</span> <span class="dv">4</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
-<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a>  <span class="fu">group_by</span>(unique_id) <span class="sc">|&gt;</span> </span>
-<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">iat_mean2 =</span> <span class="fu">mean</span>(trial_reaction_time_in_ms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb24-25"><a href="#cb24-25" tabindex="-1"></a><span class="co">#SD</span></span>
-<span id="cb24-26"><a href="#cb24-26" tabindex="-1"></a>data_iat_SD <span class="ot">&lt;-</span> data_iat <span class="sc">|&gt;</span> </span>
-<span id="cb24-27"><a href="#cb24-27" tabindex="-1"></a>  <span class="fu">filter</span>(block_number <span class="sc">==</span> <span class="dv">3</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">4</span><span class="sc">|</span>block_number <span class="sc">==</span> <span class="dv">6</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
-<span id="cb24-28"><a href="#cb24-28" tabindex="-1"></a>  <span class="fu">group_by</span>(unique_id) <span class="sc">|&gt;</span> </span>
-<span id="cb24-29"><a href="#cb24-29" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">iat_SD =</span> <span class="fu">sd</span>(trial_reaction_time_in_ms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb24-30"><a href="#cb24-30" tabindex="-1"></a><span class="co">#D</span></span>
-<span id="cb24-31"><a href="#cb24-31" tabindex="-1"></a>data_iat_D <span class="ot">&lt;-</span>data_iat_mean1  <span class="sc">|&gt;</span></span>
-<span id="cb24-32"><a href="#cb24-32" tabindex="-1"></a>  <span class="fu">full_join</span>(data_iat_mean2, <span class="at">by =</span> <span class="st">&quot;unique_id&quot;</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb24-33"><a href="#cb24-33" tabindex="-1"></a>  <span class="fu">full_join</span>(data_iat_SD, <span class="at">by =</span> <span class="st">&quot;unique_id&quot;</span>)<span class="sc">|&gt;</span></span>
-<span id="cb24-34"><a href="#cb24-34" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">iat_D=</span>(iat_mean2<span class="sc">-</span>iat_mean1)<span class="sc">/</span>iat_SD)</span></code></pre></div>
+<span id="cb24-8"><a href="#cb24-8" tabindex="-1"></a>         <span class="at">trial_reaction_time_in_ms=</span>x6)<span class="sc">|&gt;</span></span>
+<span id="cb24-9"><a href="#cb24-9" tabindex="-1"></a>  <span class="fu">slice</span>(<span class="sc">-</span><span class="dv">1</span>)<span class="sc">|&gt;</span></span>
+<span id="cb24-10"><a href="#cb24-10" tabindex="-1"></a>  <span class="fu">filter</span>(block_number<span class="sc">!=</span><span class="st">&quot;1&quot;</span>,block_number<span class="sc">!=</span><span class="st">&quot;2&quot;</span>,block_number<span class="sc">!=</span><span class="st">&quot;5&quot;</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" tabindex="-1"></a>data_iat<span class="sc">$</span> trial_reaction_time_in_ms <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_iat<span class="sc">$</span>trial_reaction_time_in_ms)</span>
+<span id="cb24-12"><a href="#cb24-12" tabindex="-1"></a>data_iat<span class="sc">$</span>unique_id <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(data_iat<span class="sc">$</span>unique_id)</span>
+<span id="cb24-13"><a href="#cb24-13" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" tabindex="-1"></a><span class="co">#mean1</span></span>
+<span id="cb24-15"><a href="#cb24-15" tabindex="-1"></a>data_iat_mean1 <span class="ot">&lt;-</span> data_iat <span class="sc">|&gt;</span> </span>
+<span id="cb24-16"><a href="#cb24-16" tabindex="-1"></a>  <span class="fu">filter</span>(block_number <span class="sc">==</span> <span class="dv">3</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">6</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-17"><a href="#cb24-17" tabindex="-1"></a>  <span class="fu">group_by</span>(unique_id) <span class="sc">|&gt;</span> </span>
+<span id="cb24-18"><a href="#cb24-18" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">iat_mean1 =</span> <span class="fu">mean</span>(trial_reaction_time_in_ms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb24-19"><a href="#cb24-19" tabindex="-1"></a><span class="co">#mean2</span></span>
+<span id="cb24-20"><a href="#cb24-20" tabindex="-1"></a>data_iat_mean2 <span class="ot">&lt;-</span> data_iat <span class="sc">|&gt;</span> </span>
+<span id="cb24-21"><a href="#cb24-21" tabindex="-1"></a>  <span class="fu">filter</span>(block_number <span class="sc">==</span> <span class="dv">4</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-22"><a href="#cb24-22" tabindex="-1"></a>  <span class="fu">group_by</span>(unique_id) <span class="sc">|&gt;</span> </span>
+<span id="cb24-23"><a href="#cb24-23" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">iat_mean2 =</span> <span class="fu">mean</span>(trial_reaction_time_in_ms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb24-24"><a href="#cb24-24" tabindex="-1"></a><span class="co">#SD</span></span>
+<span id="cb24-25"><a href="#cb24-25" tabindex="-1"></a>data_iat_SD <span class="ot">&lt;-</span> data_iat <span class="sc">|&gt;</span> </span>
+<span id="cb24-26"><a href="#cb24-26" tabindex="-1"></a>  <span class="fu">filter</span>(block_number <span class="sc">==</span> <span class="dv">3</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">4</span><span class="sc">|</span>block_number <span class="sc">==</span> <span class="dv">6</span> <span class="sc">|</span> block_number <span class="sc">==</span> <span class="dv">7</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-27"><a href="#cb24-27" tabindex="-1"></a>  <span class="fu">group_by</span>(unique_id) <span class="sc">|&gt;</span> </span>
+<span id="cb24-28"><a href="#cb24-28" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">iat_SD =</span> <span class="fu">sd</span>(trial_reaction_time_in_ms, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb24-29"><a href="#cb24-29" tabindex="-1"></a><span class="co">#D</span></span>
+<span id="cb24-30"><a href="#cb24-30" tabindex="-1"></a>data_iat_D <span class="ot">&lt;-</span>data_iat_mean1  <span class="sc">|&gt;</span></span>
+<span id="cb24-31"><a href="#cb24-31" tabindex="-1"></a>  <span class="fu">full_join</span>(data_iat_mean2, <span class="at">by =</span> <span class="st">&quot;unique_id&quot;</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb24-32"><a href="#cb24-32" tabindex="-1"></a>  <span class="fu">full_join</span>(data_iat_SD, <span class="at">by =</span> <span class="st">&quot;unique_id&quot;</span>)<span class="sc">|&gt;</span></span>
+<span id="cb24-33"><a href="#cb24-33" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">iat_D=</span>(iat_mean2<span class="sc">-</span>iat_mean1)<span class="sc">/</span>iat_SD)</span></code></pre></div>
 <div id="sanity-check-d-scores-in-the-range--2-to-2" class="section level3">
 <h3>Sanity check: D scores in the range -2 to +2</h3>
 <ul>
@@ -2078,17 +2077,17 @@ variables.</li>
 </ul>
 <div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>data_processed<span class="ot">&lt;-</span>data_processed_temp <span class="sc">|&gt;</span></span>
 <span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant_without_iat=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(iat_D)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>                                                  <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>),</span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>                                                   <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>),</span>
 <span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>         <span class="at">exclude_participant_without_bfi =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(bfi_e_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_c_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_n_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_a_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_o_mean) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,<span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>),</span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>        <span class="at">exclude_unique_id_is.na=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(unique_id)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>                                                  <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>) )<span class="sc">|&gt;</span></span>
-<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">exclude_participant =</span> <span class="fu">case_when</span>(exclude_bfi_logical_scores <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>         <span class="at">exclude_unique_id_is.na=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(unique_id)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>                                           <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>) )<span class="sc">|&gt;</span></span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant =</span> <span class="fu">case_when</span>(exclude_bfi_logical_scores <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
 <span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a>                                         exclude_bfi_completeness <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
 <span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a>                                         exclude_iat_performance <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
 <span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a>                                         exclude_iat_completeness <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
 <span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a>                                         exclude_participant_without_iat <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
 <span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a>                                         exclude_participant_without_bfi <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
-<span id="cb32-13"><a href="#cb32-13" tabindex="-1"></a>                                       exclude_unique_id_is.na<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-13"><a href="#cb32-13" tabindex="-1"></a>                                         exclude_unique_id_is.na<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
 <span id="cb32-14"><a href="#cb32-14" tabindex="-1"></a>                                         <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>))</span>
 <span id="cb32-15"><a href="#cb32-15" tabindex="-1"></a></span>
 <span id="cb32-16"><a href="#cb32-16" tabindex="-1"></a><span class="co"># Print the results</span></span>

@@ -316,8 +316,7 @@ data_iat<-data_iat_raw|>
          block_required_responses=x3,
          trial_responses=trial,
          trial_accuracy=x5,
-         trial_reaction_time_in_ms=x6
-  )|>
+         trial_reaction_time_in_ms=x6)|>
   slice(-1)|>
   filter(block_number!="1",block_number!="2",block_number!="5")
 data_iat$ trial_reaction_time_in_ms <- as.numeric(data_iat$trial_reaction_time_in_ms)
@@ -421,17 +420,17 @@ data_processed_temp <- data_demographics |>
 
 data_processed<-data_processed_temp |>
   mutate(exclude_participant_without_iat=case_when(is.na(iat_D)~"exclude",
-                                                  TRUE~"include"),
+                                                   TRUE~"include"),
          exclude_participant_without_bfi = case_when(is.na(bfi_e_mean) & is.na(bfi_c_mean) & is.na(bfi_n_mean) & is.na(bfi_a_mean) & is.na(bfi_o_mean) ~ "exclude",TRUE ~ "include"),
-        exclude_unique_id_is.na=case_when(is.na(unique_id)~"exclude",
-                                                  TRUE~"include") )|>
-mutate(exclude_participant = case_when(exclude_bfi_logical_scores == "exclude" ~ "exclude",
+         exclude_unique_id_is.na=case_when(is.na(unique_id)~"exclude",
+                                           TRUE~"include") )|>
+  mutate(exclude_participant = case_when(exclude_bfi_logical_scores == "exclude" ~ "exclude",
                                          exclude_bfi_completeness == "exclude" ~ "exclude",
                                          exclude_iat_performance == "exclude" ~ "exclude", 
                                          exclude_iat_completeness == "exclude" ~ "exclude", 
                                          exclude_participant_without_iat == "exclude" ~ "exclude", 
                                          exclude_participant_without_bfi == "exclude" ~ "exclude", 
-                                       exclude_unique_id_is.na== "exclude" ~ "exclude",
+                                         exclude_unique_id_is.na== "exclude" ~ "exclude",
                                          TRUE ~ "include"))
 
 # Print the results
