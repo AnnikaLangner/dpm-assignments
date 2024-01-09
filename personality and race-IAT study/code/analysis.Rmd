@@ -55,6 +55,10 @@ data_processed <- read_csv("../data/processed/data_processed.csv")
 data_processed_without_unique_id <- data_processed |>
   filter(exclude_unique_id_is.na == "include")
 
+#Exclude rows where participants have not participated in BFI and IAT
+data_processed_BFI_IAT_answers <- data_processed %>%
+  filter(!is.na(exclude_bfi_completeness) & !is.na(exclude_iat_completeness))
+
 #Exclude participants --> master exclusion variable
 data_processed_after_exclusions <- data_processed |>
   filter(exclude_participant == "include")
@@ -88,10 +92,10 @@ data_processed_without_unique_id %>%
 
 cat("And assuming that the demographic questions were only an option and the actual study revolves around IAT and BFI, could one argue that we only consider individuals who have answered at least one item in BFI and/or IAT? In that case, the count would be 179.")
 
-data_processed %>%
+data_processed_BFI_IAT_answers %>%
   {data.frame(n = nrow(.))} %>%
   kable() %>%
-  add_header_above(header = c("Whole sample with unique_id" = 1)) %>%
+  add_header_above(header = c("Whole sample with IAT and BFI answers" = 1)) %>%
   kable_classic(full_width = FALSE)
 
 ```
@@ -135,6 +139,35 @@ cat(count_na_age_number, "person(s) reported no age.\n The proportion of partici
 Gender
 
 ```{r}
+
+gender<-data_processed_after_exclusions$gender|>
+  count()
+
+colnames(gender)[colnames(gender) == "x"] <- "Gender"
+colnames(gender)[colnames(gender) == "freq"] <- "n"
+gender<-gender|>mutate(Gender = case_when(Gender == "f" ~ "Female",
+                                          Gender == "m" ~ "Male"),
+                       percent = paste0(round_half_up((n / sum(n)) * 100, 1), "%"))
+
+table_gender <- gender |>
+  kable() |>
+  kable_classic(full_width = FALSE)
+table_gender
+
+
+#data_processed_after_exclusions|>
+#  rename(Gender=gender)|>
+#  group_by(Gender)|>
+#  summarise(n=n())|>
+#  mutate(Percent=paste()(round_half_up((n/sum(n))*100,1),"%"))|>
+#  mutate(Gender=stringr::str_to_sentence(Gender))|>
+#  kable()|>
+#  kable_classic(full_width=FALSE)
+
+#Information about gender = NA
+count_na_gender_number <- sum(is.na(data_processed_after_exclusions$gender))
+count_na_gender_proprtion<-round((nrow(data_processed_after_exclusions)-sum(is.na(data_processed_after_exclusions$gender)))/nrow(data_processed_after_exclusions),2)
+cat(count_na_gender_number, "person(s) reported no age.\n The proportion of participants for which the age variable was available is",count_na_gender_proprtion,".")
 
 ```
 
@@ -189,7 +222,7 @@ cat("Cronbach's alpha for the subscales:\n
 
 #extroversion
 ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean))+
-  geom_histogram(binwidth = 1, 
+  geom_histogram(binwidth = 0.1, 
                  fill = "steelblue", 
                  color = "black") + 
   labs(title="Distribution of extroversion ",x="Mean extraversion",y="Frequency")+  
@@ -198,7 +231,7 @@ ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean))+
 
 #conscientiousness
 ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean)) +
-  geom_histogram(binwidth = 1, 
+  geom_histogram(binwidth = 0.1, 
                  fill = "steelblue", 
                  color = "black") + 
   labs(title="Distribution of conscientiousness ",x="Mean conscientiousness",y="Frequency")+ 
@@ -209,7 +242,7 @@ ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean)) +
 
 #neuroticism
 ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean)) +
-  geom_histogram(binwidth = 1, 
+  geom_histogram(binwidth = 0.1, 
                  fill = "steelblue", 
                  color = "black") + 
   labs(title="Distribution of neuroticism",x="Mean neuroticism",y="Frequency")+
@@ -218,7 +251,7 @@ ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean)) +
 
 #agreeableness
 ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean)) +
-  geom_histogram(binwidth = 1, 
+  geom_histogram(binwidth = 0.1, 
                  fill = "steelblue", 
                  color = "black") + 
   labs(title="Distribution of agreeableness",x="Mean agreeableness",y="Frequency")+
@@ -229,7 +262,7 @@ ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean)) +
 
 #openness
 ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean)) +
-  geom_histogram(binwidth = 1, 
+  geom_histogram(binwidth = 0.1, 
                  fill = "steelblue", 
                  color = "black") + 
   labs(title="Distribution of openness",x="Mean openness",y="Frequency")+
@@ -408,7 +441,7 @@ x_threshold_high <- quantile(data_processed_after_exclusions$iat_D, 0.9)
 
 #extroversion
 scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -416,12 +449,12 @@ scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = i
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
   labs(title="Relationship between IAT and extroversion ",x="Mean extraversion",y="IAT Score",shape = "Legend") +        
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
-  scale_x_continuous(breaks = c(15,20,25,30,35,40,45))+
+ scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
 #conscientiousness
 scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -429,12 +462,12 @@ scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = i
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
   labs(title="Relationship between IAT and conscientiousness ",x="Mean conscientiousness",y="IAT Score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
-  scale_x_continuous(breaks = c(15,20,25,30,35,40,45, 50, 55))+
+ scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
 #neuroticism
 scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -442,12 +475,12 @@ scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = i
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
   labs(title="Relationship between IAT and neuroticism ",x="Mean neuroticism",y="IAT Score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
-  scale_x_continuous(breaks = c(10,15,20,25,30,35,40,45))+
+  scale_x_continuous(breaks = c(1.5,2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
 #agreeableness
 scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -455,12 +488,12 @@ scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = i
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
   labs(title="Relationship between IAT and agreeableness ",x="Mean agreeableness",y="IAT Score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
-  scale_x_continuous(breaks = c(15,20,25,30,35,40,45,50,55))+
+ scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
 #openness
 scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -470,7 +503,7 @@ scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = i
   ylab("IAT Score") +
   labs(title="Relationship between IAT and openness",x="Mean openness",y="IAT Score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
-  scale_x_continuous(breaks = c(15,20,25,30,35,40,45,50,55,60))+
+  scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
 scatterplot_e
@@ -551,7 +584,6 @@ scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = i
   theme(legend.position="none")
 
 
-
 ```
 
 
@@ -565,7 +597,7 @@ scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = i
 
 combineplot_horizontal <- 
   scatterplot_e + scatterplot_c +scatterplot_n + scatterplot_a + scatterplot_o +plot_annotation(
-    title = 'Relationship between IAT und big five subscales with Regression Line')
+    title = 'Relationship between IAT und big five subscales with regression line')
 combineplot_horizontal
 
 combineplot_vertical <- 

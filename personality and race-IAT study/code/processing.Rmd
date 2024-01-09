@@ -203,16 +203,16 @@ data_bfi_rev_without_onrc_ex_compl<-data_bfi_rev_without_onrc|>
 
 #Create a new column with the mean values for each subscale
 data_bfi_meanscore <- data_bfi_rev_without_onrc_ex_compl |>
-  mutate(bfi_e_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_e")), na.rm = TRUE) > 0,
-                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_e")), na.rm = TRUE), NA),
-         bfi_c_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_c")), na.rm = TRUE) > 0,
-                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_c")), na.rm = TRUE), NA),
-         bfi_n_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_n")), na.rm = TRUE) > 0,
-                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_n")), na.rm = TRUE), NA),
-         bfi_a_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_a")), na.rm = TRUE) > 0,
-                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_a")), na.rm = TRUE), NA),
-         bfi_o_mean = ifelse(rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE) > 0,
-                             rowSums(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE), NA))|>
+  mutate(bfi_e_mean = ifelse(rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_e")), na.rm = TRUE) > 0,
+                             rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_e")), na.rm = TRUE), NA),
+         bfi_c_mean = ifelse(rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_c")), na.rm = TRUE) > 0,
+                             rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_c")), na.rm = TRUE), NA),
+         bfi_n_mean = ifelse(rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_n")), na.rm = TRUE) > 0,
+                             rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_n")), na.rm = TRUE), NA),
+         bfi_a_mean = ifelse(rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_a")), na.rm = TRUE) > 0,
+                             rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_a")), na.rm = TRUE), NA),
+         bfi_o_mean = ifelse(rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE) > 0,
+                             rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE), NA))|>
   select(unique_id,bfi_e_mean,bfi_c_mean,bfi_n_mean,bfi_a_mean,bfi_o_mean)
 
 
@@ -225,49 +225,21 @@ data_bfi_meanscore <- data_bfi_rev_without_onrc_ex_compl |>
 ```{r}
 
 #Max score = number of columns *6
-maxscore_bfi_e <- data_bfi_raw |>
-  select(starts_with("bfi_e")) |>
-  ncol()*6
-maxscore_bfi_c <- data_bfi_raw |>
-  select(starts_with("bfi_c")) |>
-  ncol()*6
-maxscore_bfi_n <- data_bfi_raw |>
-  select(starts_with("bfi_n")) |>
-  ncol()*6
-maxscore_bfi_a <- data_bfi_raw |>
-  select(starts_with("bfi_a")) |>
-  ncol()*6
-maxscore_bfi_o <- data_bfi_raw |>
-  select(starts_with("bfi_o")) |>
-  ncol()*6
+maxscore <- 6
 
 #Min score = number of columns *1
-minscore_bfi_e <- data_bfi_raw |>
-  select(starts_with("bfi_e")) |>
-  ncol()*1
-minscore_bfi_c <- data_bfi_raw |>
-  select(starts_with("bfi_c")) |>
-  ncol()*1
-minscore_bfi_n <- data_bfi_raw |>
-  select(starts_with("bfi_n")) |>
-  ncol()*1
-minscore_bfi_a <- data_bfi_raw |>
-  select(starts_with("bfi_a")) |>
-  ncol()*1
-minscore_bfi_o <- data_bfi_raw |>
-  select(starts_with("bfi_o")) |>
-  ncol()*1
+minscore <- 1
 
 result_range_e <- data_bfi_meanscore |>
-  filter(bfi_e_mean > maxscore_bfi_e | bfi_e_mean < minscore_bfi_e)
+  filter(bfi_e_mean > maxscore | bfi_e_mean < minscore)
 result_range_c <- data_bfi_meanscore |>
-  filter(bfi_c_mean > maxscore_bfi_c | bfi_c_mean < minscore_bfi_c)
+  filter(bfi_c_mean > maxscore | bfi_c_mean < minscore)
 result_range_n <- data_bfi_meanscore |>
-  filter(bfi_n_mean > maxscore_bfi_n | bfi_n_mean < minscore_bfi_n)
+  filter(bfi_n_mean > maxscore | bfi_n_mean < minscore)
 result_range_a <- data_bfi_meanscore |>
-  filter(bfi_a_mean > maxscore_bfi_a | bfi_a_mean < minscore_bfi_a)
+  filter(bfi_a_mean > maxscore | bfi_a_mean < minscore)
 result_range_o <- data_bfi_meanscore |>
-  filter(bfi_o_mean > maxscore_bfi_o | bfi_o_mean < minscore_bfi_o)
+  filter(bfi_o_mean > maxscore | bfi_o_mean < minscore)
 
 #Print the results for every subscale
 if (nrow(result_range_e) == 0) {
@@ -480,21 +452,24 @@ variable_codebook_E <- c(sorted_variable_codebook_E_dp_vtr, variable_to_add_E) #
 codebook_E <- data.frame(
   Variable=variable_codebook_E
 )|>
-  mutate(explanation = case_when(Variable == "bfi_e_mean" ~ "",
-                                 Variable == "bfi_c_mean" ~ "",
-                                 Variable == "bfi_n_mean" ~ "",
-                                 Variable == "bfi_a_mean" ~ "",
-                                 Variable == "bfi_o_mean" ~ "",
-                                 Variable == "exclude_bfi_completeness" ~ "",
-                                 Variable == "exclude_bfi_logical_scores" ~ "",
-                                 Variable == "exclude_iat_completeness" ~ "",
-                                 Variable == "exclude_iat_performance" ~ "",
-                                 Variable == "exclude_participant" ~ "",
-                                 Variable == "iat_D" ~ "",
-                                 Variable == "iat_SD" ~ "",
-                                 Variable == "iat_mean1" ~ "",
-                                 Variable == "iat_mean2" ~ "",
+  mutate(explanation = case_when(Variable == "bfi_e_mean" ~ "mean score for bfi subscale extroversion",
+                                 Variable == "bfi_c_mean" ~ "mean score for bfi subscale agreeableness",
+                                 Variable == "bfi_n_mean" ~ "mean score for bfi subscale neuroticism",
+                                 Variable == "bfi_a_mean" ~ "mean score for bfi subscale agreeableness",
+                                 Variable == "bfi_o_mean" ~ "mean score for bfi subscale openness",
+                                 Variable == "exclude_bfi_completeness" ~ "Exclusion variable: Participants who did not complete the entire subscale they were supposed to, have been marked as excluded.",
+                                 Variable == "exclude_bfi_logical_scores" ~ "Exclusion variable: Item-level data from the subscales that are below 1 or above 6 have been marked as excluded.",
+                                 Variable == "exclude_iat_completeness" ~ "Exclusion variable: Participants with incomplete IAT trials (120) have been marked as excluded.",
+                                 Variable == "exclude_iat_performance" ~ "Exclusion variable: Participants with more than 10% of their trial durations below 300ms or an accuracy less than 75% have been marked as excluded.",
+                                 Variable == "exclude_participant" ~ "Master exclusion: Combine all exclusion variables",
+                                 Variable == "iat_D" ~ "Greenwald D score from the trial-level IAT",
+                                 Variable == "iat_SD" ~ "Standard deviation of RTs in block 3, 4, 6 and 7",
+                                 Variable == "iat_mean1" ~ "mean RT for blocks 3 and 6 (one score using trials from both blocks)",
+                                 Variable == "iat_mean2" ~ "mean RT for blocks 4 and 7 (one score using trials from both blocks)",
                                  Variable == "unique_id" ~   "Participant identification number",
+                                 Variable == "exclude_participant_without_bfi" ~   "Exclusion variable: Participants who did not participate in the BFI",
+                                 Variable == "exclude_participant_without_iat" ~   "Exclusion variable: Participants who did not participate in the IAT",
+                                 Variable == "exclude_unique_id_is.na" ~   "Exclusion variable: Participants without unique_id",
                                  Variable == "age" ~   "Participant age",
                                  Variable == "gender" ~   "Participant gender",
                                  Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "Different reversed items form the subscale extroversion",
@@ -509,20 +484,20 @@ codebook_E <- data.frame(
                                  Variable == "bfi_o1,...,bfi_o9" ~   "Different items form the subscale openness",
                                  TRUE ~ NA))|>
   
-  mutate(items_used_and_calculation = case_when(Variable == "bfi_e_mean" ~ "",
-                                                Variable == "bfi_c_mean" ~ "",
-                                                Variable == "bfi_n_mean" ~ "",
-                                                Variable == "bfi_a_mean" ~ "",
-                                                Variable == "bfi_o_mean" ~ "",
+  mutate(items_used_and_calculation = case_when(Variable == "bfi_e_mean" ~ "bfi_e1, bfi_e3, bfi_e4, bfi_e6, bfi_e8, bfi_e2_rev, bfi_e7_rev, bfi_e5_rev",
+                                                Variable == "bfi_c_mean" ~ "bfi_c1, bfi_c3, bfi_c6, bfi_c7, bfi_c8, bfi_c, bfi_c2_rev, bfi_c4_rev, bfi_c5_rev, bfi_c9_rev",
+                                                Variable == "bfi_n_mean" ~ "bfi_n1, bfi_n3, bfi_n4, bfi_n6, bfi_n8, bfi_n2_rev, bfi_n5_rev, bfi_n7_rev",
+                                                Variable == "bfi_a_mean" ~ "bfi_a2, bfi_a4, bfi_a5, bfi_a7, bfi_a9, bfi_a1_rev, bfi_a3_rev, bfi_a6_rev, bfi_a8_rev",
+                                                Variable == "bfi_o_mean" ~ "bfi_o1, bfi_o10, bfi_o2, bfi_o3, bfi_o4, bfi_o5, bfi_o6, bfi_o8, bfi_o7_rev, bfi_o9_rev",
                                                 Variable == "exclude_bfi_completeness" ~ "",
                                                 Variable == "exclude_bfi_logical_scores" ~ "",
-                                                Variable == "exclude_iat_completeness" ~ "",
+                                                Variable == "exclude_iat_completeness" ~ "number of IAT trials < 120",
                                                 Variable == "exclude_iat_performance" ~ "",
-                                                Variable == "exclude_participant" ~ "",
-                                                Variable == "iat_D" ~ "",
-                                                Variable == "iat_SD" ~ "",
-                                                Variable == "iat_mean1" ~ "",
-                                                Variable == "iat_mean2" ~ "",
+                                                Variable == "exclude_participant" ~ "exclude_bfi_completeness, exclude_bfi_logicalscores, exclude_iat_completeness, exclude_ait_performance",
+                                                Variable == "iat_D" ~ "(iat_mean2-iat_mean1)/ait_SD",
+                                                Variable == "iat_SD" ~ "trial_reaction_time_in_ms (dataframe: data_iat in R code) from block 3, 4, 6 and 7",
+                                                Variable == "iat_mean1" ~ "trial_reaction_time_in_ms from block 3 and 6 (dataframe: data_iat in R code) was used to calculate the mean",
+                                                Variable == "iat_mean2" ~ "trial_reaction_time_in_ms from block 4 and 7 (dataframe: data_iat in R code) was used to calculate the mean",
                                                 Variable == "unique_id" ~   "",
                                                 Variable == "age" ~   "",
                                                 Variable == "gender" ~   "",
@@ -537,63 +512,56 @@ codebook_E <- data.frame(
                                                 Variable == "bfi_a1,...,bfi_a9" ~   "",
                                                 Variable == "bfi_o1,...,bfi_o9" ~   "",
                                                 TRUE ~ NA))|>
-  mutate(Range=case_when(Variable == "bfi_e_mean" ~ "",
-                         Variable == "bfi_c_mean" ~ "",
-                         Variable == "bfi_n_mean" ~ "",
-                         Variable == "bfi_a_mean" ~ "",
-                         Variable == "bfi_o_mean" ~ "",
-                         Variable == "exclude_bfi_completeness" ~ "",
-                         Variable == "exclude_bfi_logical_scores" ~ "",
-                         Variable == "exclude_iat_completeness" ~ "",
-                         Variable == "exclude_iat_performance" ~ "",
-                         Variable == "exclude_participant" ~ "",
-                         Variable == "iat_D" ~ "",
-                         Variable == "iat_SD" ~ "",
-                         Variable == "iat_mean1" ~ "",
-                         Variable == "iat_mean2" ~ "",
-                         Variable == "unique_id" ~   "",
-                         Variable == "age" ~   "",
-                         Variable == "gender" ~   "",
-                         Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
-                         Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
-                         Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
-                         Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
-                         Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
-                         Variable == "bfi_e1,...,bfi_e9" ~   "",
-                         Variable == "bfi_c1,...,bfi_c9" ~   "",
-                         Variable == "bfi_n1,...,bfi_n9" ~   "",
-                         Variable == "bfi_a1,...,bfi_a9" ~   "",
-                         Variable == "bfi_o1,...,bfi_o9" ~   "",
+  mutate(Range=case_when(Variable == "bfi_e_mean" ~ paste0(1, "-", 6),
+                         Variable == "bfi_c_mean" ~ paste0(1, "-", 6),
+                         Variable == "bfi_n_mean" ~ paste0(1, "-",6),
+                         Variable == "bfi_a_mean" ~ paste0(1, "-", 6),
+                         Variable == "bfi_o_mean" ~ paste0(1, "-", 6),
+                         Variable == "exclude_bfi_completeness" ~ "include or exclude",
+                         Variable == "exclude_bfi_logical_scores" ~ "include or exclude",
+                         Variable == "exclude_iat_completeness" ~ "include or exclude",
+                         Variable == "exclude_iat_performance" ~ "include or exclude",
+                         Variable == "exclude_participant" ~ "include or exclude",
+                         Variable == "exclude_participant_without_bfi" ~   "include or exclude",
+                         Variable == "exclude_participant_without_iat" ~   "include or exclude",
+                         Variable == "exclude_unique_id_is.na" ~   "include or exclude",
+                         Variable == "iat_D" ~ "-2 to +2",
+                         Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "1-6",
+                         Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "1-6",
+                         Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "1-6",
+                         Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "1-6",
+                         Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "1-6",
+                         Variable == "bfi_e1,...,bfi_e9" ~   "1-6",
+                         Variable == "bfi_c1,...,bfi_c9" ~   "1-6",
+                         Variable == "bfi_n1,...,bfi_n9" ~   "1-6",
+                         Variable == "bfi_a1,...,bfi_a9" ~   "1-6",
+                         Variable == "bfi_o1,...,bfi_o9" ~   "1-6",
                          TRUE ~ NA))|>
   
-  mutate(Study = case_when(Variable == "bfi_e_mean" ~ "",
-                           Variable == "bfi_c_mean" ~ "",
-                           Variable == "bfi_n_mean" ~ "",
-                           Variable == "bfi_a_mean" ~ "",
-                           Variable == "bfi_o_mean" ~ "",
-                           Variable == "exclude_bfi_completeness" ~ "",
-                           Variable == "exclude_bfi_logical_scores" ~ "",
-                           Variable == "exclude_iat_completeness" ~ "",
-                           Variable == "exclude_iat_performance" ~ "",
-                           Variable == "exclude_participant" ~ "",
-                           Variable == "iat_D" ~ "",
-                           Variable == "iat_SD" ~ "",
-                           Variable == "iat_mean1" ~ "",
-                           Variable == "iat_mean2" ~ "",
-                           Variable == "unique_id" ~   "",
-                           Variable == "age" ~   "",
-                           Variable == "gender" ~   "",
-                           Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "",
-                           Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "",
-                           Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "",
-                           Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "",
-                           Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "",
-                           Variable == "bfi_e1,...,bfi_e9" ~   "",
-                           Variable == "bfi_c1,...,bfi_c9" ~   "",
-                           Variable == "bfi_n1,...,bfi_n9" ~   "",
-                           Variable == "bfi_a1,...,bfi_a9" ~   "",
-                           Variable == "bfi_o1,...,bfi_o9" ~   "",
-                           TRUE ~ NA))
+  mutate(Study = case_when(Variable == "bfi_e_mean" ~ "big five inventory (bfi)",
+                               Variable == "bfi_c_mean" ~ "big five inventory (bfi)",
+                               Variable == "bfi_n_mean" ~ "big five inventory (bfi)",
+                               Variable == "bfi_a_mean" ~ "big five inventory (bfi)",
+                               Variable == "bfi_o_mean" ~ "big five inventory (bfi)",
+                               Variable == "exclude_bfi_completeness" ~ "big five inventory (bfi)",
+                               Variable == "exclude_bfi_logical_scores" ~ "big five inventory (bfi)",
+                               Variable == "exclude_iat_completeness" ~ "Implicit Association Test (iat)",
+                               Variable == "exclude_iat_performance" ~ "Implicit Association Test (iat)",
+                               Variable == "iat_SD" ~ "Implicit Association Test (iat)",
+                               Variable == "iat_mean1" ~ "Implicit Association Test (iat)",
+                               Variable == "iat_mean2" ~ "Implicit Association Test (iat)",
+                               Variable == "iat_D" ~ "Implicit Association Test (iat)",
+                               Variable == "bfi_e1_rev,...,bfi_e9_rev" ~   "big five inventory (bfi)",
+                               Variable == "bfi_c1_rev,...,bfi_c9_rev" ~   "big five inventory (bfi)",
+                               Variable == "bfi_n1_rev,...,bfi_n9_rev" ~   "big five inventory (bfi)",
+                               Variable == "bfi_a1_rev,...,bfi_a9_rev" ~   "big five inventory (bfi)",
+                               Variable == "bfi_o1_rev,...,bfi_o9_rev" ~   "big five inventory (bfi)",
+                               Variable == "bfi_e1,...,bfi_e9" ~   "big five inventory (bfi)",
+                               Variable == "bfi_c1,...,bfi_c9" ~   "big five inventory (bfi)",
+                               Variable == "bfi_n1,...,bfi_n9" ~   "big five inventory (bfi)",
+                               Variable == "bfi_a1,...,bfi_a9" ~   "big five inventory (bfi)",
+                               Variable == "bfi_o1,...,bfi_o9" ~   "big five inventory (bfi)",
+                               TRUE ~ NA))
 
 
 #write.xlsx(codebook_E, file = "../data/processed/data_processed_codebook.xlsx")
