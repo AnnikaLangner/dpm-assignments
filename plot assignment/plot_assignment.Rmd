@@ -1,6 +1,6 @@
 ---
 title: "Plot assignment"
-author: "Template: Ian Hussey; content: [Student name]"
+author: "Template: Ian Hussey; content: Annika Langner"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
   html_document:
@@ -23,6 +23,29 @@ knitr::opts_chunk$set(message = FALSE,
 ```{r}
 
 library(tidyverse)
+library(ggplot2)
+library(ggExtra)
+library(dplyr)
+library(ggforce)
+
+library(patchwork)
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(janitor)
+library(scales)
+library(RColorBrewer)
+library(ggplot2)
+library(ggridges)
+library(ggrain)
+library(gridExtra)
+library(psych)
+library(ggExtra)
+library(ggrepel)  
+library(ggdist)
+library(report)
+library(ggmagnify)
+library(crayon)
 
 ```
 
@@ -49,19 +72,155 @@ Consider making use of the many extensions to ggplot2, e.g.:
 - ggsignif
 - and others: https://exts.ggplot2.tidyverse.org/gallery/
 
+
+
+```{r}
+set.seed(123)
+
+#data<-iris|>
+#  select(Sepal.Length,Sepal.Width,Species)|>
+#  rename(color="Species",
+#         neurotizismus="Sepal.Width",
+#         wealth="Sepal.Length")|>
+#  filter(color != "virginica")|>
+#   mutate(color = case_when(color == "setosa" ~ "red", 
+#                               color == "versicolor" ~ "blue",
+#                               TRUE ~ NA))
+
+data <- iris %>%
+  select(Sepal.Length, Sepal.Width, Species) %>%
+  filter(Species != "virginica") %>%
+  mutate(
+    color = case_when(
+      Species == "setosa" ~ "red",
+      Species == "versicolor" ~ "blue",
+      TRUE ~ NA
+    ),
+    neurotizismus = Sepal.Width,
+    wealth = Sepal.Length
+  )|>
+  select(-Species,-Sepal.Length,-Sepal.Width)
+
+data_green1 <- data.frame(
+  wealth = runif(15, min = 6, max = 9),
+  neurotizismus = runif(15, min = 2, max = 3),
+  color = rep("green", 15)  
+)
+
+data_green2 <- data.frame(
+  wealth = runif(10, min = 7, max = 7.5),
+  neurotizismus = runif(10, min = 2.01, max = 2.2),
+  color = rep("green", 10)  
+)
+
+data_yellow <- data.frame(
+  wealth = runif(15, min = 8, max = 9),
+  neurotizismus = runif(15, min = 4, max = 4.5),
+  color = rep("yellow", 15)  
+)
+data_green<- rbind(data_green1, data_green2)
+dataa <- rbind(data_green, data)
+dataa <- rbind(data_yellow, dataa)
+
+csv_file <- "data.csv"
+
+if (!file.exists(csv_file)) {
+  # Wenn die Datei nicht existiert, dann speichern
+  write.csv(dataa, file = csv_file, row.names = FALSE)
+} else {
+  # Andernfalls mach etwas anderes oder gebe eine Meldung aus
+  print("Die Datei existiert bereits.")
+}
+
+```
+
+
+
 # Good plot
 
 ```{r}
+from <- c(xmin = 7, xmax = 7.5, ymin = 2, ymax = 2.2)
+to <- c(xmin = 7, xmax = 9, ymin = 3.1, ymax = 3.9)
+
+graph <- ggplot(dataa, aes(x = wealth, y = neurotizismus, color = color)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x) +
+  scale_y_continuous(breaks = seq(0, 6, by = 0.5)) +
+  scale_x_continuous(breaks = seq(0, 30, by = 1)) +
+  scale_color_manual(values = c("blue" = "royalblue", "green" = "seagreen3", "red" = "red3","yellow"="goldenrod1" ), 
+                     labels = c("blue", "green", "red", "yellow")) +
+  theme_minimal()+
+  labs(title = "Title.")
+
+# Create the marginal histograms
+#plot_good_AnnikaLangner <- ggMarginal(graph, type = "density", groupColour = TRUE, groupFill = TRUE, fill = "black")
+ggmagnifyplot<-graph+ geom_magnify(from = from, to = to)+theme_linedraw()
 
 
+plot_good_AnnikaLangner <- ggMarginal(ggmagnifyplot, type = "density", groupColour = TRUE, groupFill = TRUE, fill = "black")
 
+plot_good_AnnikaLangner
 ```
 
 # Bad plot
 
+- All data points are black, and the data points are also very wide. It is difficult to distinguish between the data points and identify which data points belong to which color.
+
+- color: The colors of the regression lines are not well chosen, making the legend very difficult to read. Green color is represented in blue, yellow color in red, and red color in blue, and for the blue color, only XXX is displayed.
+- color: Moreover, the color light yellow was used, which is indistinguishable from the white background.
+- color: The two chosen shades of blue are difficult to distinguish.
+
+-The title is too long and not precise
+-Informal font for the title
+
+- geom_magnify: The background of the zoomed-in rectangle through the geom_magnify function is dark, making it difficult to discern the data points.
+- geom_magnify: The zoomed-in rectangle through the geom_magnify function overlays on top of other data points, thereby obscuring them.
+- geom_magnify: The zoomed-in rectangle through the geom_magnify function has different proportions than the original triangle, resulting in vertical distortion of the point representation.
+
+- axes: The y-axis ranges only from 0 to 2.5 and displays too many numbers, making it difficult to discern individual values.There are no values on half of the y-axis, and on the other half, the values cannot be read.
+- axes: On the x-axis, there are too large steps, and the values chosen for the intervals are not suitable (16.5; it would have been better to use 2 or 5 values between intervals). Additionally, there are decimal values, even though there are no decimal values in the dataset.
+- axes: The x-axis labeling is missing.
+- Not all points are represented in the graph. Adjusting Y-axis limits -scale_y_continuous(limits = c(0, 5)) 
+- Not all points are represented in the graph. Distorting x-Axis - coord_cartesian(xlim = c(0, 32)). The distortion of the x-axis does not affect the density plots, causing them to no longer align appropriately. 
+
+
 ```{r}
 
+library(showtext)
+## Loading Google fonts (https://fonts.google.com/)
+font_add_google("Gochi Hand", "gochi")
+font_add_google("Schoolbell", "bell")
+showtext_auto()
 
+from <- c(xmin = 7, xmax = 7.5, ymin = 2, ymax = 2.2)
+to <- c(xmin = 6, xmax = 30, ymin = 3.73, ymax = 4.45)
+
+graph <- ggplot(dataa, aes(x = wealth, y = neurotizismus, color = color)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, formula = y ~ x) +
+  scale_y_continuous(breaks = seq(0, 2.5, by = 0.08),limits = c(0, 4.2)) +
+  scale_x_continuous(breaks = seq(0, 100, by = 16.4)) +
+  scale_color_manual(values = c("blue" = "blue1", "green" = "blue3", "red" = "red", "yellow" = "lightyellow"), 
+                     labels = c("red", "XXX", "yellow", "Blue")) +
+  geom_point(color = "black", size=5)+
+  theme_minimal()+
+  labs(x = NULL) +
+  labs(title = "The following graph below illustrates a relationship.The following graph showcases regression lines and data points representing wealth, neuroticism, and colors.")+
+  theme(plot.title = element_text(face = "bold", family = "bell", size = 14))+
+  #theme(panel.background = element_rect(fill = "blue"))+
+  coord_cartesian(xlim = c(4.7, 32)) +
+  theme(panel.background = element_rect(fill = "gray10"))
+
+
+# Create the marginal histograms
+
+
+ggmagnifyplot<-graph+ geom_magnify(from = from, to = to)+theme_linedraw()
+
+
+plot_bad_AnnikaLangner <- ggMarginal(ggmagnifyplot, type = "density", groupColour = TRUE, groupFill = TRUE, fill = "black")
+
+plot_bad_AnnikaLangner
 
 ```
 
@@ -72,8 +231,8 @@ Write to disk as a .pdf or .png.
 Name them "plot_good_[yourname]" and "plot_bad_[yourname]".
 
 ```{r}
-
-
+ggsave("plot_bad_AnnikaLangner.png",dpi = 300,plot_bad_AnnikaLangner)
+ggsave("plot_good_AnnikaLangner.png",dpi = 300,plot_good_AnnikaLangner)
 
 ```
 
