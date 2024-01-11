@@ -90,7 +90,7 @@ data_processed_without_unique_id %>%
   add_header_above(header = c("Whole sample with unique_id" = 1)) %>%
   kable_classic(full_width = FALSE)
 
-cat("And assuming that the demographic questions were only an option and the actual study revolves around IAT and BFI, could one argue that we only consider individuals who have answered at least one item in BFI and/or IAT? In that case, the count would be 179.")
+cat("And assuming that the demographic questions were only an option and the actual study revolves around IAT and BFI, could one argue that we only consider individuals who have answered at least one item in BFI and/or IAT? In that case, the count would be 179.->But here, I have already made exclusions.")
 
 data_processed_BFI_IAT_answers %>%
   {data.frame(n = nrow(.))} %>%
@@ -120,6 +120,7 @@ data_processed_after_exclusions %>%
 Age
 
 ```{r}
+
 data_processed_after_exclusions |>
   mutate(age = as.numeric(age)) |>
   summarise(Mean = mean(age, na.rm = TRUE),
@@ -130,18 +131,33 @@ data_processed_after_exclusions |>
   kable_classic(full_width = FALSE)
 
 #Information about age = NA
-count_na_age_number <- sum(is.na(data_processed_after_exclusions$age))
+count_na_age_number <- sum(!is.na(data_processed_after_exclusions$age))
 count_na_age_proprtion<-round((nrow(data_processed_after_exclusions)-sum(is.na(data_processed_after_exclusions$age)))/nrow(data_processed_after_exclusions),2)
-cat(count_na_age_number, "person(s) reported no age.\n The proportion of participants for which the age variable was available is",count_na_age_proprtion,".")
+cat(count_na_age_number, "person(s) reported age.\n The proportion of participants for which the age variable was available is",count_na_age_proprtion,".")
 
 ```
 
 Gender
 
 ```{r}
-
+cat("Table with NA")
 gender<-data_processed_after_exclusions$gender|>
   count()
+
+colnames(gender)[colnames(gender) == "x"] <- "Gender"
+colnames(gender)[colnames(gender) == "freq"] <- "n"
+gender<-gender|>mutate(Gender = case_when(Gender == "f" ~ "Female",
+                                          Gender == "m" ~ "Male"),
+                       percent = paste0(round_half_up((n / sum(n)) * 100, 1), "%"))
+table_gender <- gender |>
+  kable() |>
+  kable_classic(full_width = FALSE)
+table_gender
+
+cat("Table of men vs women, without NA")
+gender<-data_processed_after_exclusions$gender|>
+  count()|>
+  filter(x=="f"|x=="m")
 
 colnames(gender)[colnames(gender) == "x"] <- "Gender"
 colnames(gender)[colnames(gender) == "freq"] <- "n"
@@ -155,6 +171,7 @@ table_gender <- gender |>
 table_gender
 
 
+#another way to create a gender table
 #data_processed_after_exclusions|>
 #  rename(Gender=gender)|>
 #  group_by(Gender)|>
@@ -165,9 +182,9 @@ table_gender
 #  kable_classic(full_width=FALSE)
 
 #Information about gender = NA
-count_na_gender_number <- sum(is.na(data_processed_after_exclusions$gender))
+count_na_gender_number <- sum(!is.na(data_processed_after_exclusions$gender))
 count_na_gender_proprtion<-round((nrow(data_processed_after_exclusions)-sum(is.na(data_processed_after_exclusions$gender)))/nrow(data_processed_after_exclusions),2)
-cat(count_na_gender_number, "person(s) reported no age.\n The proportion of participants for which the age variable was available is",count_na_gender_proprtion,".")
+cat(count_na_gender_number, "person(s) reported gender.\n The proportion of participants for which the age variable was available is",count_na_gender_proprtion,".")
 
 ```
 
@@ -338,6 +355,8 @@ if (shapiro_test$p.value < 0.05) {
 
 t_test_result <- t.test(iat_D ~ gender, data = data_processed_after_exclusions)
 
+report(t_test_result)
+
 if (t_test_result$p.value < 0.05) {
   cat("Men and women differ on their scores on the IAT (p-value:", round(t_test_result$p.value,2),").")
 } else {
@@ -346,7 +365,6 @@ if (t_test_result$p.value < 0.05) {
 
 cat("t-Test Results:\n Test Statistic:", t_test_result$statistic, "\n Degrees of Freedom:", t_test_result$parameter, "\n Mean Difference:", mean(data_processed_after_exclusions$iat_scores[data_processed_after_exclusions$sex == "Male"], na.rm = TRUE) -
     mean(data_processed_after_exclusions$iat_scores[data_processed_after_exclusions$sex == "Female"], na.rm = TRUE))
-report(t_test_result)
 
 ```
 
@@ -354,32 +372,16 @@ report(t_test_result)
 
 - Run a series of regressions to test the hypotheses that each BFI subscale predicts IAT scores. Run separate regressions for each subscale rather than a multiple regression. Report and interpret the results using {report}.
 
-```{r}
-set.seed(123)
-reg_model_e <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
-reg_model_c <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
-reg_model_n <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
-reg_model_a <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
-reg_model_o <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
+Extroversion
 
+```{r}
+reg_model_e <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
 report(reg_model_e)
-report(reg_model_c)
-report(reg_model_n)
-report(reg_model_a)
-report(reg_model_o)
+
+summary(reg_model_e)
 
 reg_model_e_sum <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)|>summary()
-reg_model_c_sum <- lm(iat_D ~ bfi_c_mean,data = data_processed_after_exclusions)|>summary()
-reg_model_n_sum <- lm(iat_D ~ bfi_n_mean, data = data_processed_after_exclusions)|>summary()
-reg_model_a_sum <- lm(iat_D ~ bfi_a_mean, data= data_processed_after_exclusions)|>summary()
-reg_model_o_sum <- lm(iat_D ~ bfi_o_mean,data = data_processed_after_exclusions)|>summary()
-
-# Extract the p-value for the iat_D coefficient
 p_value_e <- reg_model_e_sum$coefficients["bfi_e_mean", "Pr(>|t|)"]
-p_value_c <- reg_model_c_sum$coefficients["bfi_c_mean", "Pr(>|t|)"]
-p_value_n <- reg_model_n_sum$coefficients["bfi_n_mean", "Pr(>|t|)"]
-p_value_a <- reg_model_a_sum$coefficients["bfi_a_mean", "Pr(>|t|)"]
-p_value_o <- reg_model_o_sum$coefficients["bfi_o_mean", "Pr(>|t|)"]
 
 if (p_value_e < 0.05) {
   cat("EXTROVERSION: The regression indicates that the relationship between bfi_e_mean and iat_D is statistically significant (p =", round(p_value_e,2), "). This suggests that extroversion has a significant impact on IAT scores.\n 
@@ -388,7 +390,19 @@ if (p_value_e < 0.05) {
   cat("EXTROVERSION: The regression does not provide evidence of a statistically significant relationship between extroversion and IAT scores (p =",round( p_value_e,2), ").\n
       Full results from the regression analysis for extraversion (bfi_e_mean) and IAT scores (iat_D) are presented in the following table.")
 }
-reg_model_e
+
+```
+
+Conscientiousness
+
+```{r}
+reg_model_c <- lm(iat_D ~ bfi_c_mean, data = data_processed_after_exclusions)
+report(reg_model_c)
+
+summary(reg_model_c)
+
+reg_model_c_sum <- lm(iat_D ~ bfi_c_mean,data = data_processed_after_exclusions)|>summary()
+p_value_c <- reg_model_c_sum$coefficients["bfi_c_mean", "Pr(>|t|)"]
 
 if (p_value_c < 0.05) {
   cat("CONSCIENTIOUSNESS: The regression indicates that the relationship between bfi_e_mean and iat_D is statistically significant (p =", round( p_value_c,2), "). This suggests that conscientiousness has a significant impact on IAT scores.\n
@@ -397,8 +411,18 @@ if (p_value_c < 0.05) {
   cat("CONSCIENTIOUSNESS: The regression does not provide evidence of a statistically significant relationship between conscientiousness and IAT scores (p =",round( p_value_c,2), ").\n
        Full results from the regression analysis for conscientiousness (bfi_c_mean) and IAT scores (iat_D) are presented in the following table.")
 }
+```
 
-{reg_model_c}
+Neuroticism
+
+```{r}
+reg_model_n <- lm(iat_D ~ bfi_n_mean, data = data_processed_after_exclusions)
+report(reg_model_n)
+
+summary(reg_model_n)
+
+reg_model_n_sum <- lm(iat_D ~ bfi_n_mean, data = data_processed_after_exclusions)|>summary()
+p_value_n <- reg_model_n_sum$coefficients["bfi_n_mean", "Pr(>|t|)"]
 
 if (p_value_n < 0.05) {
   cat("NEUROTICISM: The regression indicates that the relationship between bfi_e_mean and iat_D is statistically significant (p =", round( p_value_n,2), "). This suggests that neuroticism has a significant impact on IAT scores.\n
@@ -407,8 +431,18 @@ if (p_value_n < 0.05) {
   cat("NEUROTICISM: The regression does not provide evidence of a statistically significant relationship between neuroticism and IAT scores (p =", round( p_value_n,2), ").\n
        Full results from the regression analysis for neuroticism (bfi_n_mean) and IAT scores (iat_D) are presented in the following table.")
 }
+```
 
-{reg_model_n}
+Agreeableness
+
+```{r}
+reg_model_a <- lm(iat_D ~ bfi_a_mean, data = data_processed_after_exclusions)
+report(reg_model_a)
+
+summary(reg_model_a)
+
+reg_model_a_sum <- lm(iat_D ~ bfi_a_mean, data= data_processed_after_exclusions)|>summary()
+p_value_a <- reg_model_a_sum$coefficients["bfi_a_mean", "Pr(>|t|)"]
 
 if (p_value_a < 0.05) {
   cat("AGREEABLENESS: The regression indicates that the relationship between bfi_e_mean and iat_D is statistically significant (p =", round( p_value_a,2), "). This suggests that agreeableness has a significant impact on IAT scores.\n
@@ -417,8 +451,20 @@ if (p_value_a < 0.05) {
   cat("AGREEABLENESS: The regression does not provide evidence of a statistically significant relationship between agreeableness and IAT scores (p =", round( p_value_a,2), ").\n
        Full results from the regression analysis for agreeableness (bfi_a_mean) and IAT scores (iat_D) are presented in the following table.")
 }
+```
 
-{reg_model_a}
+Openness
+
+```{r}
+
+reg_model_o <- lm(iat_D ~ bfi_o_mean, data = data_processed_after_exclusions)
+report(reg_model_o)
+
+summary(reg_model_o)
+
+reg_model_o_sum <- lm(iat_D ~ bfi_o_mean,data = data_processed_after_exclusions)|>summary()
+p_value_o <- reg_model_o_sum$coefficients["bfi_o_mean", "Pr(>|t|)"]
+
 if (p_value_o < 0.05) {
   cat("OPENNESS: The regression indicates that the relationship between bfi_e_mean and iat_D is statistically significant (p =", round( p_value_o,2), "). This suggests that openness has a significant impact on IAT scores.\n
        Full results from the regression analysis for openness (bfi_o_mean) and IAT scores (iat_D) are presented in the following table.")
@@ -426,7 +472,7 @@ if (p_value_o < 0.05) {
   cat("OPENNESS: The regression does not provide evidence of a statistically significant relationship between openness and IAT scores (p =", round( p_value_o,2), ").\n
        Full results from the regression analysis for openness (bfi_o_mean) and IAT scores (iat_D) are presented in the following table.")
 }
-{reg_model_o}
+
 
 ```
 ### Scatter plots
@@ -436,12 +482,15 @@ Make the plots presentable and publication quality- you may decide the details o
 
 ```{r}
 
-x_threshold_low <- quantile(data_processed_after_exclusions$iat_D, 0.1)
-x_threshold_high <- quantile(data_processed_after_exclusions$iat_D, 0.9)
-
 #extroversion
+data_processed_after_exclusions_e<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_e_mean))
+
+x_threshold_low_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.1)
+x_threshold_high_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.9)
+
 scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_e | iat_D <= x_threshold_low_e, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -453,8 +502,14 @@ scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = i
   theme_linedraw()
 
 #conscientiousness
+data_processed_after_exclusions_c<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_c_mean))
+
+x_threshold_low_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.1)
+x_threshold_high_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.9)
+
 scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_c | iat_D <= x_threshold_low_c, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -466,8 +521,14 @@ scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = i
   theme_linedraw()
 
 #neuroticism
+data_processed_after_exclusions_n<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_n_mean))
+
+x_threshold_low_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.1)
+x_threshold_high_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.9)
+
 scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_n | iat_D <= x_threshold_low_n, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -479,8 +540,14 @@ scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = i
   theme_linedraw()
 
 #agreeableness
+data_processed_after_exclusions_a<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_a_mean))
+
+x_threshold_low_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.1)
+x_threshold_high_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.9)
+
 scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_a | iat_D <= x_threshold_low_a, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -492,8 +559,14 @@ scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = i
   theme_linedraw()
 
 #openness
+data_processed_after_exclusions_o<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_o_mean))
+
+x_threshold_low_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.1)
+x_threshold_high_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.9)
+
 scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high | iat_D <= x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_o | iat_D <= x_threshold_low_o, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -515,12 +588,15 @@ scatterplot_o
 
 ```{r}
 
-x_threshold_low <- quantile(data_processed_after_exclusions$iat_D, 0.1)
-x_threshold_high <- quantile(data_processed_after_exclusions$iat_D, 0.9)
-
 #extraversion
+data_processed_after_exclusions_e<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_e_mean))
+
+x_threshold_low_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.1)
+x_threshold_high_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.9)
+
 scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D > x_threshold_high_e | iat_D < x_threshold_low_e, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -532,8 +608,14 @@ scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = i
   theme(legend.position="none")
 
 #conscientiousness
+data_processed_after_exclusions_c<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_c_mean))
+
+x_threshold_low_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.1)
+x_threshold_high_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.9)
+
 scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D > x_threshold_high_c | iat_D < x_threshold_low_c, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -545,21 +627,34 @@ scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = i
   theme(legend.position="none")
 
 #neuroticism
+data_processed_after_exclusions_n<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_n_mean))
+
+x_threshold_low_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.1)
+x_threshold_high_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.9)
+
 scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D > x_threshold_high_n | iat_D < x_threshold_low_n, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score"),
+                     name = "Legend")+ 
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.7) +
   xlab("Mean neuroticism") +
   ylab("IAT Score") +
-  theme_linedraw()+
-  theme(legend.position="none")
+  theme_linedraw()
+  #theme(legend.position="none")
 
 #agreeableness
+data_processed_after_exclusions_a<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_a_mean))
+
+x_threshold_low_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.1)
+x_threshold_high_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.9)
+
 scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D > x_threshold_high_a | iat_D < x_threshold_low_a, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -571,8 +666,14 @@ scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = i
   theme(legend.position="none")
 
 #openness
+data_processed_after_exclusions_o<-data_processed_after_exclusions|>
+  filter(!is.na(bfi_o_mean))
+
+x_threshold_low_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.1)
+x_threshold_high_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.9)
+
 scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = iat_D)) +
-  geom_point(aes(shape = ifelse(iat_D > x_threshold_high | iat_D < x_threshold_low, "triangle", "circle")), 
+  geom_point(aes(shape = ifelse(iat_D > x_threshold_high_o | iat_D < x_threshold_low_o, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
@@ -595,9 +696,16 @@ scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = i
 
 ```{r}
 
+#combineplot_horizontal <- 
+#  scatterplot_e + scatterplot_c +scatterplot_n + scatterplot_a + scatterplot_o +plot_annotation(
+#    title = 'Relationship between IAT und big five subscales with regression line')+
+#plot_layout(widths = c(1,1, 1))
+
 combineplot_horizontal <- 
   scatterplot_e + scatterplot_c +scatterplot_n + scatterplot_a + scatterplot_o +plot_annotation(
-    title = 'Relationship between IAT und big five subscales with regression line')
+    title = 'Relationship between IAT und big five subscales with regression line')+
+guide_area() + 
+  plot_layout(guides = 'collect')
 combineplot_horizontal
 
 combineplot_vertical <- 
@@ -607,8 +715,8 @@ combineplot_vertical <-
   plot_layout(heights = c(1, 1, 1)) + plot_annotation(
     subtitle = "between IAT und big five subscales ") 
 
-ggsave("../communications/combineplot.png",dpi = 300,combineplot_vertical)
-ggsave("../communications/combineplot.pdf",dpi = 300,combineplot_vertical)
+ggsave("../communications/combineplot.png",dpi = 300,combineplot_horizontal)
+ggsave("../communications/combineplot.pdf",dpi = 300,combineplot_horizontal)
 
 ```
 
