@@ -1664,7 +1664,7 @@ border-radius: 0px;
 big-5 personality facets and implicit racial attitudes</h1>
 <h3 class="subtitle">Data processing</h3>
 <h4 class="author">Annika Langner</h4>
-<h4 class="date">09 January, 2024</h4>
+<h4 class="date">13 January, 2024</h4>
 
 </div>
 
@@ -1766,7 +1766,7 @@ about item reversals, or their implementation, is not correct.</li>
 <span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a>cor_bfi_o<span class="ot">&lt;-</span>data_bfi_rev_without_onrc<span class="sc">|&gt;</span><span class="fu">select</span>(<span class="fu">starts_with</span>(<span class="st">&quot;bfi_o&quot;</span>))<span class="sc">|&gt;</span></span>
 <span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a>  <span class="fu">cor</span>(<span class="at">use =</span> <span class="st">&quot;complete.obs&quot;</span>, <span class="at">method =</span> <span class="st">&quot;pearson&quot;</span>)</span>
 <span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#Print if negative correlations exist</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#Print: if negative correlations exist</span></span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a>negative_values_e_exist <span class="ot">&lt;-</span> <span class="fu">any</span>(cor_bfi_e <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a>negative_values_c_exist <span class="ot">&lt;-</span> <span class="fu">any</span>(cor_bfi_c <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
 <span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a>negative_values_n_exist <span class="ot">&lt;-</span> <span class="fu">any</span>(cor_bfi_n <span class="sc">&lt;</span> <span class="dv">0</span>)</span>
@@ -1847,7 +1847,7 @@ incomplete data to “exclude”.</li>
 <li>Mean-score the subscales of the BFI scale. Each participant only got
 either 2 or 3 subscales.</li>
 </ul>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co">#Exclude the rows </span></span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co">#Exclude the rows with incomplete BFI values</span></span>
 <span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>data_bfi_rev_without_onrc_ex_compl<span class="ot">&lt;-</span>data_bfi_rev_without_onrc<span class="sc">|&gt;</span></span>
 <span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>  <span class="fu">full_join</span>(data_bfi_completeness, <span class="at">by =</span> <span class="st">&quot;unique_id&quot;</span>)<span class="sc">|&gt;</span></span>
 <span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a>  <span class="fu">filter</span>(exclude_bfi_completeness<span class="sc">==</span><span class="st">&quot;include&quot;</span>)</span>
@@ -2047,24 +2047,26 @@ and item level BFI data should be present in the dataset.</li>
 <li>Create a master exclude variable from the individual exclude
 variables.</li>
 </ul>
-<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a>data_processed<span class="ot">&lt;-</span>data_processed_temp <span class="sc">|&gt;</span></span>
-<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant_without_iat=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(iat_D)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>                                                   <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>),</span>
-<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>         <span class="at">exclude_participant_without_bfi =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(bfi_e_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_c_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_n_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_a_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_o_mean) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,<span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>),</span>
-<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>         <span class="at">exclude_unique_id_is.na=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(unique_id)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>                                           <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>) )<span class="sc">|&gt;</span></span>
-<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant =</span> <span class="fu">case_when</span>(exclude_bfi_logical_scores <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a>                                         exclude_bfi_completeness <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a>                                         exclude_iat_performance <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
-<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a>                                         exclude_iat_completeness <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
-<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a>                                         exclude_participant_without_iat <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
-<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a>                                         exclude_participant_without_bfi <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
-<span id="cb32-13"><a href="#cb32-13" tabindex="-1"></a>                                         exclude_unique_id_is.na<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
-<span id="cb32-14"><a href="#cb32-14" tabindex="-1"></a>                                         <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>))</span>
-<span id="cb32-15"><a href="#cb32-15" tabindex="-1"></a></span>
-<span id="cb32-16"><a href="#cb32-16" tabindex="-1"></a><span class="co"># Print the results</span></span>
-<span id="cb32-17"><a href="#cb32-17" tabindex="-1"></a>result_master_exclusion <span class="ot">&lt;-</span> <span class="fu">table</span>(data_processed<span class="sc">$</span>exclude_participant)</span>
-<span id="cb32-18"><a href="#cb32-18" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The distribution for master exclusion:</span><span class="sc">\n</span><span class="st"> exclude-&gt;&quot;</span>, result_master_exclusion[<span class="st">&quot;exclude&quot;</span>], <span class="st">&quot;and include-&gt;&quot;</span>, result_master_exclusion[<span class="st">&quot;include&quot;</span>])</span></code></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" tabindex="-1"></a><span class="co"># I have added three more exclusion criteria: when there is no unique_id, when individuals have not participated in the BFI, and when individuals have not participated in the IAT</span></span>
+<span id="cb32-2"><a href="#cb32-2" tabindex="-1"></a></span>
+<span id="cb32-3"><a href="#cb32-3" tabindex="-1"></a>data_processed<span class="ot">&lt;-</span>data_processed_temp <span class="sc">|&gt;</span></span>
+<span id="cb32-4"><a href="#cb32-4" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant_without_iat=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(iat_D)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" tabindex="-1"></a>                                                   <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>),</span>
+<span id="cb32-6"><a href="#cb32-6" tabindex="-1"></a>         <span class="at">exclude_participant_without_bfi =</span> <span class="fu">case_when</span>(<span class="fu">is.na</span>(bfi_e_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_c_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_n_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_a_mean) <span class="sc">&amp;</span> <span class="fu">is.na</span>(bfi_o_mean) <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,<span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>),</span>
+<span id="cb32-7"><a href="#cb32-7" tabindex="-1"></a>         <span class="at">exclude_unique_id_is.na=</span><span class="fu">case_when</span>(<span class="fu">is.na</span>(unique_id)<span class="sc">~</span><span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-8"><a href="#cb32-8" tabindex="-1"></a>                                           <span class="cn">TRUE</span><span class="sc">~</span><span class="st">&quot;include&quot;</span>) )<span class="sc">|&gt;</span></span>
+<span id="cb32-9"><a href="#cb32-9" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">exclude_participant =</span> <span class="fu">case_when</span>(exclude_bfi_logical_scores <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-10"><a href="#cb32-10" tabindex="-1"></a>                                         exclude_bfi_completeness <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-11"><a href="#cb32-11" tabindex="-1"></a>                                         exclude_iat_performance <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
+<span id="cb32-12"><a href="#cb32-12" tabindex="-1"></a>                                         exclude_iat_completeness <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
+<span id="cb32-13"><a href="#cb32-13" tabindex="-1"></a>                                         exclude_participant_without_iat <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
+<span id="cb32-14"><a href="#cb32-14" tabindex="-1"></a>                                         exclude_participant_without_bfi <span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>, </span>
+<span id="cb32-15"><a href="#cb32-15" tabindex="-1"></a>                                         exclude_unique_id_is.na<span class="sc">==</span> <span class="st">&quot;exclude&quot;</span> <span class="sc">~</span> <span class="st">&quot;exclude&quot;</span>,</span>
+<span id="cb32-16"><a href="#cb32-16" tabindex="-1"></a>                                         <span class="cn">TRUE</span> <span class="sc">~</span> <span class="st">&quot;include&quot;</span>))</span>
+<span id="cb32-17"><a href="#cb32-17" tabindex="-1"></a></span>
+<span id="cb32-18"><a href="#cb32-18" tabindex="-1"></a><span class="co"># Print the results</span></span>
+<span id="cb32-19"><a href="#cb32-19" tabindex="-1"></a>result_master_exclusion <span class="ot">&lt;-</span> <span class="fu">table</span>(data_processed<span class="sc">$</span>exclude_participant)</span>
+<span id="cb32-20"><a href="#cb32-20" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;The distribution for master exclusion:</span><span class="sc">\n</span><span class="st"> exclude-&gt;&quot;</span>, result_master_exclusion[<span class="st">&quot;exclude&quot;</span>], <span class="st">&quot;and include-&gt;&quot;</span>, result_master_exclusion[<span class="st">&quot;include&quot;</span>])</span></code></pre></div>
 <pre><code>## The distribution for master exclusion:
 ##  exclude-&gt; 1807 and include-&gt; 161</code></pre>
 </div>
@@ -2088,6 +2090,8 @@ codebook is always up-to-date. If new variables are introduced, they are
 added directly. The codebook is then overwritten each time, and one must
 be careful not to inadvertently overwrite important information in the
 Excel sheet which have been manually added.</p>
+<p>I did not complete the codebook for processing.rmd fully as it was
+not part of the task.</p>
 <div id="codebook-for-excel-sheet-data_processed.csv" class="section level2">
 <h2>Codebook for excel sheet data_processed.csv</h2>
 <ul>
@@ -2545,7 +2549,7 @@ each variable represents.</li>
 <div class="sourceCode" id="cb37"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
 <pre><code>## R version 4.3.1 (2023-06-16)
 ## Platform: aarch64-apple-darwin20 (64-bit)
-## Running under: macOS Sonoma 14.0
+## Running under: macOS Sonoma 14.2.1
 ## 
 ## Matrix products: default
 ## BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 

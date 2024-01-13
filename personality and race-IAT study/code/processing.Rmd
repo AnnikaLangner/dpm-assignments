@@ -124,7 +124,7 @@ cor_bfi_a<-data_bfi_rev_without_onrc|>select(starts_with("bfi_a"))|>
 cor_bfi_o<-data_bfi_rev_without_onrc|>select(starts_with("bfi_o"))|>
   cor(use = "complete.obs", method = "pearson")
 
-#Print if negative correlations exist
+#Print: if negative correlations exist
 negative_values_e_exist <- any(cor_bfi_e < 0)
 negative_values_c_exist <- any(cor_bfi_c < 0)
 negative_values_n_exist <- any(cor_bfi_n < 0)
@@ -196,7 +196,7 @@ cat("The distribution for BFI completeness:\n exclude->", result_bfi_compl["excl
 - Mean-score the subscales of the BFI scale. Each participant only got either 2 or 3 subscales.
 ```{r}
 
-#Exclude the rows 
+#Exclude the rows with incomplete BFI values
 data_bfi_rev_without_onrc_ex_compl<-data_bfi_rev_without_onrc|>
   full_join(data_bfi_completeness, by = "unique_id")|>
   filter(exclude_bfi_completeness=="include")
@@ -214,7 +214,6 @@ data_bfi_meanscore <- data_bfi_rev_without_onrc_ex_compl |>
          bfi_o_mean = ifelse(rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE) > 0,
                              rowMeans(select(data_bfi_rev_without_onrc_ex_compl, starts_with("bfi_o")), na.rm = TRUE), NA))|>
   select(unique_id,bfi_e_mean,bfi_c_mean,bfi_n_mean,bfi_a_mean,bfi_o_mean)
-
 
 ```
 
@@ -390,6 +389,8 @@ data_processed_temp <- data_demographics |>
 
 ```{r}
 
+# I have added three more exclusion criteria: when there is no unique_id, when individuals have not participated in the BFI, and when individuals have not participated in the IAT
+
 data_processed<-data_processed_temp |>
   mutate(exclude_participant_without_iat=case_when(is.na(iat_D)~"exclude",
                                                    TRUE~"include"),
@@ -427,6 +428,8 @@ write_csv(data_processed, "../data/processed/data_processed.csv")
 # Codebooks 
 
 I have created two codebooks, one for the Excel sheet and one for the R file. Both codebooks are populated in the R code, ensuring that the codebook is always up-to-date. If new variables are introduced, they are added directly. The codebook is then overwritten each time, and one must be careful not to inadvertently overwrite important information in the Excel sheet which have been manually added.
+
+I did not complete the codebook for processing.rmd fully as it was not part of the task.
 
 ## Codebook for excel sheet data_processed.csv
 

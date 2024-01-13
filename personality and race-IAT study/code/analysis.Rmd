@@ -40,6 +40,7 @@ library(plyr)
 library(dplyr)
 library(stringr)
 library(report)
+library(cowplot)
 ```
 
 # Data
@@ -56,7 +57,7 @@ data_processed_without_unique_id <- data_processed |>
   filter(exclude_unique_id_is.na == "include")
 
 #Exclude rows where participants have not participated in BFI and IAT
-data_processed_BFI_IAT_answers <- data_processed %>%
+data_processed_BFI_IAT_answers <- data_processed |>
   filter(!is.na(exclude_bfi_completeness) & !is.na(exclude_iat_completeness))
 
 #Exclude participants --> master exclusion variable
@@ -70,7 +71,6 @@ data_processed_after_exclusions <- data_processed |>
 ### Sample size before exclusions
 
 - Create a table with the total number of participants before exclusions.
-
 
 ```{r}
 
@@ -195,7 +195,7 @@ cat(count_na_gender_number, "person(s) reported gender.\n The proportion of part
 - Calculate Cronbach's alpha for each of the BFI subscales.
 
 ```{r}
-
+#Select necessary columns
 data_alpha_e <- data_processed_after_exclusions |>
   select(starts_with("bfi_e")) |>
   select(-bfi_e_mean)
@@ -216,6 +216,7 @@ data_alpha_o <- data_processed_after_exclusions |>
   select(starts_with("bfi_o")) |>
   select(-bfi_o_mean)
 
+#Determine alpha values 
 alpha_e <- alpha( data_alpha_e, na.rm = TRUE)
 alpha_c <- alpha( data_alpha_c, na.rm = TRUE)
 alpha_n <- alpha( data_alpha_n, na.rm = TRUE)
@@ -292,7 +293,7 @@ ggplot(data_processed_after_exclusions, aes(x = iat_D)) +
                  boundary = 0,
                  fill = "steelblue", 
                  color = "black") + 
-  labs(title="Distribution of IAT scores",x="IAT",y="Frequency")+
+  labs(title="Distribution of D scores",x="D scores",y="Frequency")+
   theme_linedraw() +
   scale_x_continuous(breaks = pretty_breaks(n = 10))
 
@@ -302,38 +303,31 @@ ggplot(data_processed_after_exclusions, aes(x = iat_D)) +
 
 ### Correlation matrix
 
-
 - Create a table with a correlation matrix of the Pearson's r correlations between the IAT and the BFI subscales rounded to two decimal places. 
 
 ```{r}
 
-# List of BFI subscales and IAT for correlations
-variables <- c("bfi_e_mean", "bfi_c_mean", "bfi_n_mean", "bfi_a_mean", "bfi_o_mean", "iat_D")
+detach("package:plyr", unload = TRUE)
+library(dplyr)
 
-# Calculate the correlation matrix for each pair of variables
-cor_matrix <- matrix(NA, nrow = length(variables), ncol = length(variables))
-for (i in 1:length(variables)) {
-  for (j in 1:length(variables)) {
-    # Select only the rows without NA values for both variables
-    non_na_rows <- complete.cases(data_processed_after_exclusions[, c(variables[i], variables[j])])
-    
-    # Calculate the correlation and store it in the matrix
-    cor_matrix[i, j] <- cor(data_processed_after_exclusions[non_na_rows, variables[i]],
-                            data_processed_after_exclusions[non_na_rows, variables[j]],
-                            method = "pearson")
-  }
-}
+# Rename column names for better readability in the table
+data_processed_after_exclusions_newname <- data_processed_after_exclusions %>%
+  rename(extraversion = bfi_e_mean,
+         openness=bfi_o_mean,
+         neuroticism=bfi_n_mean,
+         conscientiousness=bfi_c_mean,
+         agreeableness=bfi_a_mean,
+         D=iat_D,
+  )
 
-# Round the values to two decimal places
-cor_matrix_rounded <- round(cor_matrix, 2)
-
-# Convert the matrix to a data frame
-cor_matrix_df <- as.data.frame(cor_matrix_rounded)
-
-# Add row and column names
-row.names(cor_matrix_df) <- colnames(cor_matrix_df) <- variables
-
-{cor_matrix_df}
+#Create correlation table
+data_processed_after_exclusions_newname |>
+  select(D, extraversion, conscientiousness, neuroticism, agreeableness, openness) |>
+  cor(method = "pearson", use = "pairwise.complete.obs")|> 
+  round(2)|>
+  kable() |>
+  kable_classic(full_width = FALSE)|>
+  add_header_above(header = c("Correlations between BFI scales and IAT score D" = 7),  align = "left")
 
 ```
 
@@ -341,20 +335,20 @@ row.names(cor_matrix_df) <- colnames(cor_matrix_df) <- variables
 
 - Run a t-test to test the hypothesis that men and women differ on their scores on the IAT. Report and interpret the results using {report}.
 ```{r}
-# Assuming 'iat_scores' is the variable containing IAT scores
+# Check if it is normally distributed
 shapiro_test <- shapiro.test(data_processed_after_exclusions$iat_D)
 
-# Print the results
-
-# Check the p-value against the chosen significance level (e.g., 0.05)
+#  Print the result of shapiro test. Check the p-value against the chosen significance level (e.g., 0.05)
 if (shapiro_test$p.value < 0.05) {
   cat("The data is not normally distributed based on the Shapiro-Wilk test (p-value=", round(shapiro_test$p.value,2),").")
 } else {
   cat("The data appears to be normally distributed based on the Shapiro-Wilk test (p-value=", round(shapiro_test$p.value,2),").")
 }
 
+#t-test
 t_test_result <- t.test(iat_D ~ gender, data = data_processed_after_exclusions)
 
+#Print results in various formats
 report(t_test_result)
 
 if (t_test_result$p.value < 0.05) {
@@ -378,6 +372,7 @@ Extroversion
 reg_model_e <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)
 report(reg_model_e)
 
+#Additional information and options for reporting the results. Not necessary for this task.
 summary(reg_model_e)
 
 reg_model_e_sum <- lm(iat_D ~ bfi_e_mean, data = data_processed_after_exclusions)|>summary()
@@ -478,7 +473,7 @@ if (p_value_o < 0.05) {
 ### Scatter plots
 
 - Create series of scatter plots of how BFI subscale scores predict IAT scores. Add regression lines. These plots therefore illustrate the same results as the regressions above.
-Make the plots presentable and publication quality- you may decide the details of this with one exception: Extreme scores on the IAT (defined as participants whose scores in the top and bottom 10% of IAT scores) should use a triangular shape rather than a dot. A single combined plot should be created, containing 5 component plots, with the personality facet being examined in each clearly labelled. This plot should be printed in the html file but also saved to disk as both png/pdf. 
+Make the plots presentable and publication quality- you may decide the details of this with one exception: Extreme scores on the IAT (defined as participants whose scores in the top and bottom 10% of IAT scores) should use a triangular shape rather than a dot. 
 
 ```{r}
 
@@ -489,14 +484,14 @@ data_processed_after_exclusions_e<-data_processed_after_exclusions|>
 x_threshold_low_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.1)
 x_threshold_high_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.9)
 
-scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = iat_D)) +
+scatterplot_e_single_plot<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_e | iat_D <= x_threshold_low_e, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
-  labs(title="Relationship between IAT and extroversion ",x="Mean extraversion",y="IAT Score",shape = "Legend") +        
+  labs(title="Relationship between D and extroversion ",x="Mean extraversion",y="D score",shape = "Legend") +        
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
  scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
@@ -508,14 +503,14 @@ data_processed_after_exclusions_c<-data_processed_after_exclusions|>
 x_threshold_low_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.1)
 x_threshold_high_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.9)
 
-scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = iat_D)) +
+scatterplot_c_single_plot<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_c | iat_D <= x_threshold_low_c, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
-  labs(title="Relationship between IAT and conscientiousness ",x="Mean conscientiousness",y="IAT Score",shape = "Legend") +
+  labs(title="Relationship between D and conscientiousness ",x="Mean conscientiousness",y="D score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
  scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
@@ -527,14 +522,14 @@ data_processed_after_exclusions_n<-data_processed_after_exclusions|>
 x_threshold_low_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.1)
 x_threshold_high_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.9)
 
-scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = iat_D)) +
+scatterplot_n_single_plot<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_n | iat_D <= x_threshold_low_n, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
-  labs(title="Relationship between IAT and neuroticism ",x="Mean neuroticism",y="IAT Score",shape = "Legend") +
+  labs(title="Relationship between D and neuroticism ",x="Mean neuroticism",y="D score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
   scale_x_continuous(breaks = c(1.5,2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
@@ -546,16 +541,16 @@ data_processed_after_exclusions_a<-data_processed_after_exclusions|>
 x_threshold_low_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.1)
 x_threshold_high_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.9)
 
-scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = iat_D)) +
+scatterplot_a_single_plot<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_a | iat_D <= x_threshold_low_a, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
-  labs(title="Relationship between IAT and agreeableness ",x="Mean agreeableness",y="IAT Score",shape = "Legend") +
+  labs(title="Relationship between D and agreeableness ",x="Mean agreeableness",y="D score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
- scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
+  scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
 #openness
@@ -565,155 +560,118 @@ data_processed_after_exclusions_o<-data_processed_after_exclusions|>
 x_threshold_low_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.1)
 x_threshold_high_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.9)
 
-scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = iat_D)) +
+scatterplot_o_single_plot<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D >= x_threshold_high_o | iat_D <= x_threshold_low_o, "triangle", "circle")), 
              size = 2, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.8) +
   xlab("Mean openness") +
-  ylab("IAT Score") +
-  labs(title="Relationship between IAT and openness",x="Mean openness",y="IAT Score",shape = "Legend") +
+  ylab("D score") +
+  labs(title="Relationship between D and openness",x="Mean openness",y="D score",shape = "Legend") +
   scale_y_continuous(breaks = c(-1,-.75, -0.5,-.25,0,0.25, 0.5))+
   scale_x_continuous(breaks = c(2,2.5,3,3.5,4,4.5,5,5.5,6))+
   theme_linedraw()
 
-scatterplot_e
-scatterplot_c
-scatterplot_n
-scatterplot_a
-scatterplot_o
+scatterplot_e_single_plot
+scatterplot_c_single_plot
+scatterplot_n_single_plot
+scatterplot_a_single_plot
+scatterplot_o_single_plot
+
 ```
 
+
+### Combined plot
+
+I ajusted plots for combined plot
+
 ```{r}
+cat("I have adjusted the plots again to enhance their visual appearance in the combined plot (modifying the axis labels, making points smaller )")
+
+cat("In the task, it is mentioned that personality traits should be clearly labeled. I find that using the X-axis is sufficient. There should be no misunderstanding, but if you meant to add a title above the plots, then this is the code that should have been added.+labs(title=Personality trait), Personality trait must be in quotation marks")
+
+# Below, the plots have been recreated.
 
 #extraversion
-data_processed_after_exclusions_e<-data_processed_after_exclusions|>
-  filter(!is.na(bfi_e_mean))
-
-x_threshold_low_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.1)
-x_threshold_high_e <- quantile(data_processed_after_exclusions_e$iat_D, 0.9)
-
 scatterplot_e<-ggplot(data_processed_after_exclusions, aes(x = bfi_e_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D > x_threshold_high_e | iat_D < x_threshold_low_e, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.7) +
   xlab("Mean extraversion") +
-  ylab("IAT Score") +
+  ylab("D score") +
   theme_linedraw()+
   theme(legend.position="none")
 
 #conscientiousness
-data_processed_after_exclusions_c<-data_processed_after_exclusions|>
-  filter(!is.na(bfi_c_mean))
-
-x_threshold_low_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.1)
-x_threshold_high_c <- quantile(data_processed_after_exclusions_c$iat_D, 0.9)
-
 scatterplot_c<-ggplot(data_processed_after_exclusions, aes(x = bfi_c_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D > x_threshold_high_c | iat_D < x_threshold_low_c, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.7) +
   xlab("Mean conscientiousness") +
-  ylab("IAT Score") +
+  ylab("D score") +
   theme_linedraw()+
   theme(legend.position="none")
 
-#neuroticism
-data_processed_after_exclusions_n<-data_processed_after_exclusions|>
-  filter(!is.na(bfi_n_mean))
-
-x_threshold_low_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.1)
-x_threshold_high_n <- quantile(data_processed_after_exclusions_n$iat_D, 0.9)
-
+#neuroticism 
 scatterplot_n<-ggplot(data_processed_after_exclusions, aes(x = bfi_n_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D > x_threshold_high_n | iat_D < x_threshold_low_n, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score"),
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score"),
                      name = "Legend")+ 
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.7) +
   xlab("Mean neuroticism") +
-  ylab("IAT Score") +
+  ylab("D score") +
   theme_linedraw()
-  #theme(legend.position="none")
 
 #agreeableness
-data_processed_after_exclusions_a<-data_processed_after_exclusions|>
-  filter(!is.na(bfi_a_mean))
-
-x_threshold_low_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.1)
-x_threshold_high_a <- quantile(data_processed_after_exclusions_a$iat_D, 0.9)
-
 scatterplot_a<-ggplot(data_processed_after_exclusions, aes(x = bfi_a_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D > x_threshold_high_a | iat_D < x_threshold_low_a, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.7) +
   xlab("Mean agreeableness") +
-  ylab("IAT Score") +
+  ylab("D score") +
   theme_linedraw()+
   theme(legend.position="none")
 
 #openness
-data_processed_after_exclusions_o<-data_processed_after_exclusions|>
-  filter(!is.na(bfi_o_mean))
-
-x_threshold_low_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.1)
-x_threshold_high_o <- quantile(data_processed_after_exclusions_o$iat_D, 0.9)
-
 scatterplot_o<-ggplot(data_processed_after_exclusions, aes(x = bfi_o_mean, y = iat_D)) +
   geom_point(aes(shape = ifelse(iat_D > x_threshold_high_o | iat_D < x_threshold_low_o, "triangle", "circle")), 
              size = 1, 
              color = "black") +
   scale_shape_manual(values = c("triangle" = 17, "circle" = 16),
-                     labels = c("triangle" = "Top/Bottom 10% of IAT Score", "circle" = "Middle 80% of IAT Score")) +
+                     labels = c("triangle" = "Top/Bottom 10% of D score", "circle" = "Middle 80% of D score")) +
   geom_smooth(method = "lm", color = viridis_pal(begin = 0.45, option = "mako")(1), size = 0.7) +
   xlab("Mean openness") +
-  ylab("IAT Score") +
+  ylab("D score") +
   theme_linedraw()+
   theme(legend.position="none")
-
-
 ```
-
-
-
-# Combining and saving plots
+- A single combined plot should be created, containing 5 component plots, with the personality facet being examined in each clearly labelled. This plot should be printed in the html file but also saved to disk as both png/pdf. 
 
 - Combine these scatter plots into one ggplot object using {patchwork} and print the combined plot in your .Rmd and .html. Save the combined plot to disk as a .pdf and .png in the "communications" folder.
 
 
 ```{r}
 
-#combineplot_horizontal <- 
-#  scatterplot_e + scatterplot_c +scatterplot_n + scatterplot_a + scatterplot_o +plot_annotation(
-#    title = 'Relationship between IAT und big five subscales with regression line')+
-#plot_layout(widths = c(1,1, 1))
-
 combineplot_horizontal <- 
   scatterplot_e + scatterplot_c +scatterplot_n + scatterplot_a + scatterplot_o +plot_annotation(
-    title = 'Relationship between IAT und big five subscales with regression line')+
+    title = 'Relationship between D scores und big five subscales with regression line')+
 guide_area() + 
   plot_layout(guides = 'collect')
 combineplot_horizontal
-
-combineplot_vertical <- 
-  ( scatterplot_e + scatterplot_c + scatterplot_n + scatterplot_a + scatterplot_o +  
-      ggplot() + geom_blank() +theme_void() +
-      theme(legend.position = "none"))+
-  plot_layout(heights = c(1, 1, 1)) + plot_annotation(
-    subtitle = "between IAT und big five subscales ") 
 
 ggsave("../communications/combineplot.png",dpi = 300,combineplot_horizontal)
 ggsave("../communications/combineplot.pdf",dpi = 300,combineplot_horizontal)
